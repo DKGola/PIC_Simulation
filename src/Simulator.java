@@ -1,5 +1,7 @@
 package src;
 
+import java.io.File;
+
 public class Simulator {
     private int[] rom;
     private int[][] ram;
@@ -7,10 +9,11 @@ public class Simulator {
     private Decoder decoder;
 
 
-    public Simulator() {
+    public Simulator(File File) {
         rom = new int[1024];
         ram = new int[2][128];
         programCounter = 0;
+        decoder = new Decoder(ram);
     }
 
     /**
