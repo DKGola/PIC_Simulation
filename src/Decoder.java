@@ -32,10 +32,11 @@ public class Decoder {
             return -1;
         } else {
             // Bitmask: All Bits between firstBit and lastBit are set to 1
-            for (int i = startBit; i <= endBit; i++) {
-                bitmask |= (1 << i);
+            int bitMask = 0;
+            for (int i = firstBit; i <= lastBit; i++) {
+                bitMask |= (1 << i);
             }
-            return (commandCode & bitMask) >> k;
+            return (commandCode & bitMask) >> firstBit;
         }
     }
 
@@ -85,46 +86,46 @@ public class Decoder {
         commandBits = (commandCode & 0b11_1111_0000_0000);
         switch (commandBits) {
             case 0b00_0111_0000_0000:   // ADDWF(f,d)
-                execute.ADDWF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.ADDWF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_0101_0000_0000:   // ANDWF(f,d)
-                execute.ANDWF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.ANDWF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_1001_0000_0000:   // COMF(f,d)
-                execute.COMF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.COMF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_0011_0000_0000:   // DECF(f,d)
-                execute.DECF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.DECF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_1011_0000_0000:   // DECFSZ(f,d)
-                execute.DECFSZ(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.DECFSZ(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_1010_0000_0000:   // INCF(f,d)
-                execute.INCF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.INCF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_1111_0000_0000:   // INCFSZ(f,d)
-                execute.INCFSZ(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.INCFSZ(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_0100_0000_0000:   // IORWF(f,d)
-                execute.IORWF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.IORWF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_1000_0000_0000:   // MOVF(f,d)
-                execute.MOVF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.MOVF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_1101_0000_0000:   // RLF(f,d)
-                execute.RLF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.RLF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_1100_0000_0000:   // RRF(f,d)
-                execute.RRF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.RRF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_0010_0000_0000:   // SUBWF(f,d)
-                execute.SUBWF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.SUBWF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_1110_0000_0000:   // SWAPF(f,d)
-                execute.SWAPF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.SWAPF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b00_0110_0000_0000:   // XORWF(f,d)
-                execute.XORWF(readBitSegment(commandCode, 0, 6), readBit(commandBit, 7));
+                execute.XORWF(readBitSegment(commandCode, 0, 6), readBit(commandBits, 7));
                 return;
             case 0b11_1001_0000_0000:   // ANDLW(k)
                 execute.ANDLW(readBitSegment(commandCode, 0, 7));
