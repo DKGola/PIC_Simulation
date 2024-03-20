@@ -1,0 +1,72 @@
+                    00001           ;TPicSim101
+                    00002           ;Programm zum Test des 16F84-Simulators.
+                    00003           ;Es wird die richtige Funktionsweise von PCL und PCLATH am Beispiel
+                    00004           ;eines Tabellenzugriffs getestet
+                    00005           ;(c) St. Lehmann  
+                    00006           ;19.04.2014 
+                    00007           ;18.10.2018 mod. für HSO es wird die Tabelle durch ein ORG 109H auf die
+                    00008           ;                        Adresse 109H gelegt. 
+                    00009           ;13.04.2023 korrigiert (war 100H)
+                    00010           
+                    00011           list c=132          ;Zeilenlänge im LST auf 132 Zeichen setzen
+                    00012             
+                    00013           ;Definition einiger Symbole
+                    00014           indirect equ 0
+                    00015           pcl      equ 02h
+                    00016           status   equ 03h
+                    00017           fsr      equ 04h
+                    00018           ra       equ 05h
+                    00019           rb       equ 06h
+                    00020           pclath   equ 0ah
+                    00021           intcon   equ 0bh
+                    00022           
+                    00023           ;Definition des Prozessors
+                    00024           device 16F84
+                    00025           ;Festlegen des Codebeginns
+                    00026           org 0
+                    00027  start    
+0000 3000           00028           movlw 0             ;Index für Tabellenzugriff in 0FH
+0001 008F           00029           movwf 0fh
+0002 3005           00030           movlw 5             ;insgesamt 5 Tabellenzugriffe
+0003 008E           00031           movwf 0eh
+0004 3010           00032           movlw 10h           ;Ergebnis wird ab 10H abgespeichert
+0005 0084           00033           movwf fsr
+                    00034  loop     
+0006 3001           00035           movlw 1             ;PCLATH setzen, damit auf den Bereich 256-511 zugegriffen werden kann
+0007 008A           00036           movwf pclath
+0008 080F           00037           movf 0fh,w         
+0009 2109           00038           call tabelle
+000A 0080           00039           movwf indirect
+000B 0A84           00040           incf fsr
+000C 0A8F           00041           incf 0fh
+000D 0B8E           00042           decfsz 0eh
+000E 2806           00043           goto loop
+000F 018A           00044           clrf pclath
+0010 080F           00045           movf 0fh,w
+0011 2109           00046           call tabelle        ;Fehler, der ADDWF PCL kommt nicht in die Tabelle. Grund: in W steht 5
+                    00047           ;im PC 109 bzw. nach dem Fetch 10A. Zu diesem Wert wird 5 addiert und
+                    00048           ;die oberen Bits auf 0 gesetzt (PCLATH=0). Damit steht im PC der Wert
+                    00049           ;0Fh. Dorthin springt der PIC durch den ADDWF-Befehl. Hier verweilt
+                    00050           ;das Programm während der Stack immer weiter wächst.
+                    00051             
+                    00052           
+                    00053  ende     
+0012 2812           00054           goto ende           ;Endlosschleife, verhindert Nirwana
+                    00055           
+                    00056           org 109H
+                    00057  Tabelle  
+0109 0782           00058           addwf pcl         
+010A 3460           00059           retlw 60h
+010B 3461           00060           retlw 61h
+010C 3462           00061           retlw 62h
+010D 3463           00062           retlw 63h
+010E 3464           00063           retlw 64h
+010F 3465           00064           retlw 65h
+0110 3466           00065           retlw 66h
+0111 3467           00066           retlw 67h
+0112 3468           00067           retlw 68h
+0113 3469           00068           retlw 69h
+0114 346A           00069           retlw 6Ah
+                    00070             
+                    00071           
+                    00072             
