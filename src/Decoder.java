@@ -170,8 +170,8 @@ public class Decoder {
             execute.NOP();
             return;
 
-        System.out.println("ERROR: Wrong Command Code given to the decoder");
-        return;
+        //System.out.println("ERROR: Wrong Command Code given to the decoder");
+        //return;
         }
     }
 }

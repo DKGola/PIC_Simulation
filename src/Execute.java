@@ -50,6 +50,10 @@ public class Execute {
 
     }
 
+    public void IORWF(int file, int destinationBit){
+
+    }
+
     public void MOVF(int file, int destinationBit){
 
     }
