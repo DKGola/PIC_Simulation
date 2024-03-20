@@ -9,8 +9,8 @@ public class Simulator {
     private Decoder decoder;
 
 
-    public Simulator(File File) {
-        rom = new int[1024];
+    public Simulator(int[] instructions) {
+        rom = instructions;
         ram = new int[2][128];
         programCounter = 0;
         decoder = new Decoder(ram);
@@ -19,7 +19,7 @@ public class Simulator {
     /**
      * reads next command and returns it to the decoder
      */
-    public void nextCommand() {
+    public void nextInstruction() {
         decoder.decode(rom[programCounter]);
         programCounter++;
     }
