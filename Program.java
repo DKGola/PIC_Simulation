@@ -24,9 +24,11 @@ public class Program {
             }
         }
         reader.close();
-        System.out.println(readFile);
 
         Simulator simulator = new Simulator(instructions);
+        while (true){
+            simulator.nextInstruction();
+        }
     }
 }
 
