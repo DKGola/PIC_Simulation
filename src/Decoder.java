@@ -163,17 +163,15 @@ public class Decoder {
             case 0b00_0000_0110_0011:   // SLEEP()
                 execute.SLEEP();
                 return;
+        }
 
         if ((commandCode & 0b11_1111_1001_1111) == 0b00_0000_0000_0000) {
             execute.NOP();
             return;
-        }
 
         System.out.println("ERROR: Wrong Command Code given to the decoder");
         return;
         }
-
-
     }
 }
 
