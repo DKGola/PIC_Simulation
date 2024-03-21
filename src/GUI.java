@@ -16,6 +16,7 @@ public class GUI extends JFrame {
     private JButton helpButton;
     private JTable table1;
     private JTable table2;
+    private JPanel mainPanel;
 
     public GUI() {
 
