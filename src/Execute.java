@@ -101,6 +101,9 @@ public class Execute {
 
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
+
+        testPCL(file, result, destinationBit);
+
         if (destinationBit == 1) {
             ram[getRb0()][file] = result;
         } else {
@@ -109,7 +112,13 @@ public class Execute {
     }
 
     public void CLRF(int file){
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
+
         ram[getRb0()][file] = 0;
+        testPCL(file, 0);
         setFlag(Flags.Zero, 1);
     }
 
@@ -119,35 +128,59 @@ public class Execute {
     }
 
     public void COMF(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void DECF(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void DECFSZ(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void INCF(int file, int destinationBit){
-        
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void INCFSZ(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void IORWF(int file, int destinationBit){
-
-    }
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
+    }   
 
     public void MOVF(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void MOVWF(int file){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void NOP(){
@@ -155,43 +188,86 @@ public class Execute {
     }
 
     public void RLF(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void RRF(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void SUBWF(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void SWAPF(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
     public void XORWF(int file, int destinationBit){
-
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
     }
 
 
     // Bit Instructions
     public void BCF(int file, int bit){
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
+
         int result = ram[getRb0()][file] & ~(1 << bit);
         testPCL(file, result);
         ram[getRb0()][file] = result;
     }
 
     public void BSF(int file, int bit){
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
 
+        int result =  ram[getRb0()][file] | (1 << bit);
+        testPCL(file, result);
+        ram[getRb0()][file] = result;
     }
 
     public void BTFSC(int file, int bit){
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
 
+        int result = ram[getRb0()][file] & (1 << bit);
+        if(result == 0){
+            Simulator.programCounter++;
+        }
     }
 
     public void BTFSS(int file, int bit){
+        // test for indirect addressing
+        if (file == 0) {
+            file = ram[0][4];
+        }
 
+        int result = ram[getRb0()][file] & (1 << bit);
+        if(result != 0){
+            Simulator.programCounter++;
+        }
     }
 
 
