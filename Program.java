@@ -3,10 +3,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import src.GUI;
 import src.Simulator;
 
 public class Program {
     public static void main(String[] args) throws IOException {
+        GUI test = new GUI();
         start("TestProgramme/TPicSim1.LST");
     }
 
