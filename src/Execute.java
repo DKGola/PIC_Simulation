@@ -131,11 +131,40 @@ public class Execute {
 
     // Literal and Control Instructions
     public void ADDLW(int literal){
+        int result = Simulator.wRegister + literal;
+        int DigitResult = (Simulator.wRegister & 0xF) + (literal & 0xF);
 
+        if(result > 255){
+            setFlag(Flags.Carry, 1);
+        }else{
+            setFlag(Flags.Carry, 0);
+        }
+
+        if(DigitResult > 15){
+            setFlag(Flags.DigitCarry, 1);
+        }else{
+            setFlag(Flags.DigitCarry, 0);
+        }
+
+        result = result & 0xFF;
+
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+
+        Simulator.wRegister = result;
     }
 
     public void ANDLW(int literal){
-
+        int result = Simulator.wRegister & literal;
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+        Simulator.wRegister = result;
     }
 
     public void CALL(int literal){
@@ -175,10 +204,16 @@ public class Execute {
     }
 
     public void SUBLW(int literal){
-
+        ADDLW(~literal + 1);
     }
 
     public void XORLW(int literal){
-
+        int result = Simulator.wRegister ^ literal;
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+        Simulator.wRegister = result;
     }
 }
