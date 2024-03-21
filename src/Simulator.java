@@ -23,6 +23,8 @@ public class Simulator {
     public void nextInstruction() {
         int index = programCounter;
         programCounter++;
+        ram[0][2] = programCounter & 0b1111_1111;
+        ram[1][2] = programCounter & 0b1111_1111;
         decoder.decode(rom[index]);
     }
 

@@ -47,6 +47,7 @@ public class Execute {
         // ADD
         int result = Simulator.wRegister + ram[0][file];
 
+
         // check DC and set if necessary
         int digitCarryResult = (Simulator.wRegister) + (ram[0][file] & 0xF);
         if (digitCarryResult > 15) {
@@ -71,6 +72,9 @@ public class Execute {
 
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
+
+        testPCL(file, result, destinationBit);
+
         if (destinationBit == 1) {
             ram[0][file] = result;
         } else {
@@ -85,7 +89,7 @@ public class Execute {
         }
 
         // AND
-        int result = Simulator.wRegister & ram[0][file];
+        int result = Simulator.wRegister & ram[getRb0()][file];
 
 
         // check Zero
@@ -98,7 +102,7 @@ public class Execute {
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
         if (destinationBit == 1) {
-            ram[0][file] = result;
+            ram[getRb0()][file] = result;
         } else {
             Simulator.wRegister = result;
         }
@@ -125,7 +129,7 @@ public class Execute {
     }
 
     public void INCF(int file, int destinationBit){
-
+        
     }
 
     public void INCFSZ(int file, int destinationBit){
@@ -171,7 +175,9 @@ public class Execute {
 
     // Bit Instructions
     public void BCF(int file, int bit){
-
+        int result = ram[getRb0()][file] & ~(1 << bit);
+        testPCL(file, result);
+        ram[getRb0()][file] = result;
     }
 
     public void BSF(int file, int bit){
@@ -284,7 +290,7 @@ public class Execute {
 
     private void testPCL(int file, int value){
         if(file == 2){
-            Simulator.programCounter = (value + (ram[0][10] << 8));
+            Simulator.programCounter = (value + (ram[getRb0()][10] << 8));
         }
     }
 
