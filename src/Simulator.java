@@ -4,11 +4,13 @@ public class Simulator {
     private int[] rom;
     private int[][] ram;
     public static int programCounter;
+    public static int wRegister;
     private Decoder decoder;
 
 
     public Simulator(int[] instructions) {
         rom = instructions;
+        wRegister = 0;
         ram = new int[2][128];
         programCounter = 0;
         powerOnReset();
@@ -33,5 +35,6 @@ public class Simulator {
                 ram[i][j + 1] = values[i][j];
             }
         }
+        wRegister = 0;
     }
 }

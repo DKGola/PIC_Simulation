@@ -1,5 +1,8 @@
 package src;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -12,6 +15,27 @@ public class Execute {
         this.ram = ram;
     }
 
+    private void write(int file, int value){
+        List<Integer> shared = Arrays.asList(2, 3, 4, 10, 11);
+        if(shared.contains(file) || file >= 0x0C){
+            ram[0][file] = value;
+            ram[1][file] = value;
+        }else{
+            ram[getRb0()][file] = value;
+        }
+    }
+
+    private int getRb0() {
+        return (ram[0][3] & 0b0010_0000) >> 5;
+    }
+
+    private void setFlag(Flags flag, int value){
+        if(value == 0){
+            write(3, ram[0][3] & ~(1 << flag.value));
+        }else if(value == 1){
+            write(3, ram[0][3] | (1 << flag.value));
+        }
+    }
 
     // Byte instructions
     public void ADDWF(int file, int destinationBit){
