@@ -21,8 +21,9 @@ public class Simulator {
      * reads next instruction and gives it to the decoder
      */
     public void nextInstruction() {
-        decoder.decode(rom[programCounter]);
+        int index = programCounter;
         programCounter++;
+        decoder.decode(rom[index]);
     }
 
     public void powerOnReset(){

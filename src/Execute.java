@@ -176,7 +176,7 @@ public class Execute {
     }
 
     public void GOTO(int literal){
-
+        Simulator.programCounter = literal + ((ram[0][10] & 0b0001_1000) << 8);
     }
 
     public void IORLW(int literal){
@@ -192,7 +192,8 @@ public class Execute {
     }
 
     public void RETLW(int literal){
-
+        Simulator.programCounter = returnStack.pop();
+        Simulator.wRegister = literal;
     }
 
     public void RETURN(){
@@ -216,4 +217,16 @@ public class Execute {
         }
         Simulator.wRegister = result;
     }
+
+    private void testPCL(int file, int value){
+        if(file == 2){
+            Simulator.programCounter = (value + (ram[0][10] << 8));
+        }
+    }
+
+    private void testPCL(int file, int value, int destinationBit){
+        if(destinationBit == 1){
+            testPCL(file, value);
+        }
+    } 
 }
