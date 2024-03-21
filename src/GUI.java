@@ -18,6 +18,8 @@ public class GUI extends JFrame {
     private JTable table2;
 
     public GUI() {
-
+        setSize(1200, 720);
+        setVisible(true);
+        
     }
 }

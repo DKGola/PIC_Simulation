@@ -293,9 +293,40 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+        
+        int result = Simulator.wRegister + (~ram[getRb0()][file] + 1);
 
-        write(file, (~ram[getRb0()][file] + 1) & 0xFF);
-        ADDWF(file, destinationBit);
+        // check DC and set if necessary
+        int digitCarryResult = (Simulator.wRegister & 0xF) + ((~ram[getRb0()][file] + 1) & 0xF);
+
+        if (digitCarryResult > 15) {
+            setFlag(Flags.DigitCarry, 1);
+        } else {
+            setFlag(Flags.DigitCarry, 0);
+        }
+
+        // check Carry
+        if (result > 255) {
+            setFlag(Flags.Carry, 1);
+        } else {
+            setFlag(Flags.Carry, 0);
+        }
+
+        // check Zero
+        if (result == 0) {
+            setFlag(Flags.Zero, 1);
+        } else {
+            setFlag(Flags.Zero, 0);
+        }
+
+        // store result in f if dest is 1, in w if dest is 0
+        result = result & 0xFF;
+
+        if (destinationBit == 1) {
+            write(file, result);
+        } else {
+            Simulator.wRegister = result;
+        }
     }
 
     public void SWAPF(int file, int destinationBit){
