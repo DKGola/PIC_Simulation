@@ -45,10 +45,10 @@ public class Execute {
         }
 
         // ADD
-        int result = Simulator.wRegister + ram[0][file];
+        int result = Simulator.wRegister + ram[getRb0()][file];
 
         // check DC and set if necessary
-        int digitCarryResult = (Simulator.wRegister) + (ram[0][file] & 0xF);
+        int digitCarryResult = (Simulator.wRegister) + (ram[getRb0()][file] & 0xF);
         if (digitCarryResult > 15) {
             setFlag(Flags.DigitCarry, 1);
         } else {
@@ -72,7 +72,7 @@ public class Execute {
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
         if (destinationBit == 1) {
-            ram[0][file] = result;
+            ram[getRb0()][file] = result;
         } else {
             Simulator.wRegister = result;
         }
@@ -85,7 +85,7 @@ public class Execute {
         }
 
         // AND
-        int result = Simulator.wRegister & ram[0][file];
+        int result = Simulator.wRegister & ram[getRb0()][file];
 
 
         // check Zero
@@ -98,18 +98,20 @@ public class Execute {
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
         if (destinationBit == 1) {
-            ram[0][file] = result;
+            ram[getRb0()][file] = result;
         } else {
             Simulator.wRegister = result;
         }
     }
 
     public void CLRF(int file){
-
+        ram[getRb0()][file] = 0;
+        setFlag(Flags.Zero, 1);
     }
 
     public void CLRW(){
-
+        Simulator.wRegister = 0;
+        setFlag(Flags.Zero, 1);
     }
 
     public void COMF(int file, int destinationBit){
