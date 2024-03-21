@@ -1,6 +1,5 @@
 package src;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
@@ -17,6 +16,7 @@ public class Execute {
 
     private void write(int file, int value){
         List<Integer> shared = Arrays.asList(2, 3, 4, 10, 11);
+        testPCL(file, value);
         if(shared.contains(file) || file >= 0x0C){
             ram[0][file] = value;
             ram[1][file] = value;
@@ -49,7 +49,7 @@ public class Execute {
 
 
         // check DC and set if necessary
-        int digitCarryResult = (Simulator.wRegister) + (ram[getRb0()][file] & 0xF);
+        int digitCarryResult = (Simulator.wRegister & 0xF) + (ram[getRb0()][file] & 0xF);
         if (digitCarryResult > 15) {
             setFlag(Flags.DigitCarry, 1);
         } else {
@@ -73,10 +73,8 @@ public class Execute {
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
 
-        testPCL(file, result, destinationBit);
-
         if (destinationBit == 1) {
-            ram[getRb0()][file] = result;
+            write(file, result);
         } else {
             Simulator.wRegister = result;
         }
@@ -102,10 +100,8 @@ public class Execute {
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
 
-        testPCL(file, result, destinationBit);
-
         if (destinationBit == 1) {
-            ram[getRb0()][file] = result;
+            write(file, result);
         } else {
             Simulator.wRegister = result;
         }
@@ -117,8 +113,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        ram[getRb0()][file] = 0;
-        testPCL(file, 0);
+        write(file, 0);
         setFlag(Flags.Zero, 1);
     }
 
@@ -132,6 +127,19 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+
+        int result = ~ram[getRb0()][file];
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+
+        if(destinationBit == 1){
+            write(file, result);
+        }else{
+            Simulator.wRegister = result;
+        }
     }
 
     public void DECF(int file, int destinationBit){
@@ -139,6 +147,15 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+
+        int result = ram[getRb0()][file] - 1;
+        result = result & 0xFF;
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+        write(file, result);
     }
 
     public void DECFSZ(int file, int destinationBit){
@@ -146,6 +163,16 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+
+        int result = ram[getRb0()][file] - 1;
+        result = result & 0xFF;
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+            Simulator.programCounter++;
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+        write(file, result);
     }
 
     public void INCF(int file, int destinationBit){
@@ -153,6 +180,15 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+
+        int result = ram[getRb0()][file] + 1;
+        result = result & 0xFF;
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+        write(file, result);
     }
 
     public void INCFSZ(int file, int destinationBit){
@@ -160,6 +196,16 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+
+        int result = ram[getRb0()][file] + 1;
+        result = result & 0xFF;
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+            Simulator.programCounter++;
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+        write(file, result);
     }
 
     public void IORWF(int file, int destinationBit){
@@ -167,12 +213,30 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+
+        int result = Simulator.wRegister | ram[getRb0()][file];
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+        write(file, result);
     }   
 
     public void MOVF(int file, int destinationBit){
         // test for indirect addressing
         if (file == 0) {
             file = ram[0][4];
+        }
+
+        if(ram[getRb0()][file] == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+
+        if(destinationBit == 0){
+            Simulator.wRegister = ram[getRb0()][file];
         }
     }
 
@@ -181,6 +245,8 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+
+        write(file, Simulator.wRegister);
     }
 
     public void NOP(){
@@ -201,11 +267,15 @@ public class Execute {
         }
     }
 
+    // Test needed
     public void SUBWF(int file, int destinationBit){
         // test for indirect addressing
         if (file == 0) {
             file = ram[0][4];
         }
+
+        write(file, (~ram[getRb0()][file] + 1) & 0xFF);
+        ADDWF(file, destinationBit);
     }
 
     public void SWAPF(int file, int destinationBit){
@@ -213,12 +283,35 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+
+        int upper = ram[getRb0()][file] & 0xF0;
+        int lower = ram[getRb0()][file] & 0xF;
+        int result = (lower << 4) + (upper >> 4);
+
+        if(destinationBit == 1){
+            write(file, result);
+        }else{
+            Simulator.wRegister = result;
+        }
     }
 
     public void XORWF(int file, int destinationBit){
         // test for indirect addressing
         if (file == 0) {
             file = ram[0][4];
+        }
+
+        int result = Simulator.wRegister ^ ram[getRb0()][file];
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+
+        if(destinationBit == 1){
+            write(file, result);
+        }else{
+            Simulator.wRegister = result;
         }
     }
 
@@ -231,7 +324,6 @@ public class Execute {
         }
 
         int result = ram[getRb0()][file] & ~(1 << bit);
-        testPCL(file, result);
         ram[getRb0()][file] = result;
     }
 
@@ -242,7 +334,6 @@ public class Execute {
         }
 
         int result =  ram[getRb0()][file] | (1 << bit);
-        testPCL(file, result);
         ram[getRb0()][file] = result;
     }
 
@@ -274,7 +365,7 @@ public class Execute {
     // Literal and Control Instructions
     public void ADDLW(int literal){
         int result = Simulator.wRegister + literal;
-        int DigitResult = (Simulator.wRegister & 0xF) + (literal & 0xF);
+        int digitResult = (Simulator.wRegister & 0xF) + (literal & 0xF);
 
         if(result > 255){
             setFlag(Flags.Carry, 1);
@@ -282,7 +373,7 @@ public class Execute {
             setFlag(Flags.Carry, 0);
         }
 
-        if(DigitResult > 15){
+        if(digitResult > 15){
             setFlag(Flags.DigitCarry, 1);
         }else{
             setFlag(Flags.DigitCarry, 0);
@@ -310,7 +401,8 @@ public class Execute {
     }
 
     public void CALL(int literal){
-
+        returnStack.add(Simulator.programCounter);
+        GOTO(literal);
     }
 
     public void CLRWDT(){
@@ -345,13 +437,14 @@ public class Execute {
     }
 
     public void RETURN(){
-
+        Simulator.programCounter = returnStack.pop();
     }
 
     public void SLEEP(){
 
     }
 
+    // Test
     public void SUBLW(int literal){
         ADDLW(~literal + 1);
     }
@@ -368,13 +461,7 @@ public class Execute {
 
     private void testPCL(int file, int value){
         if(file == 2){
-            Simulator.programCounter = (value + (ram[getRb0()][10] << 8));
+            Simulator.programCounter = (value + ((ram[getRb0()][10] & 0b001_111) << 8));
         }
     }
-
-    private void testPCL(int file, int value, int destinationBit){
-        if(destinationBit == 1){
-            testPCL(file, value);
-        }
-    } 
 }
