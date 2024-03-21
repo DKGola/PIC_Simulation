@@ -87,6 +87,7 @@ public class Execute {
         // AND
         int result = Simulator.wRegister & ram[0][file];
 
+
         // check Zero
         if (result == 0) {
             setFlag(Flags.Zero, 1);
