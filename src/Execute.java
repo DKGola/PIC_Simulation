@@ -258,12 +258,32 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
+
+        int carryFlag = ram[0][3] & ~(1 << Flags.Carry.value);
+
+        int result = ram[getRb0()][file] << 1 + carryFlag;
+
+        if(destinationBit == 1){
+            write(file, result);
+        }else{
+            Simulator.wRegister = result;
+        }
     }
 
     public void RRF(int file, int destinationBit){
         // test for indirect addressing
         if (file == 0) {
             file = ram[0][4];
+        }
+
+        int carryFlag = ram[0][3] & ~(1 << Flags.Carry.value);
+        
+        int result = ram[getRb0()][file] >> 1 + (carryFlag << 7);
+
+        if(destinationBit == 1){
+            write(file, result);
+        }else{
+            Simulator.wRegister = result;
         }
     }
 
