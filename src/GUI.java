@@ -19,6 +19,8 @@ public class GUI extends JFrame {
     private JPanel mainPanel;
 
     public GUI() {
-
+        setSize(1200, 800);
+        setVisible(true);
+        setContentPane(mainPanel);
     }
 }
