@@ -11,7 +11,11 @@ public class GUI extends JFrame {
     private JButton resetButton;
     private JTextPane LSTTextPane;
     private JTabbedPane tabbedPane1;
+    private JTextArea consoleTextArea;
+    private JButton fileButton;
+    private JButton helpButton;
     private JTable table1;
+    private JTable table2;
 
     public GUI() {
 
