@@ -9,7 +9,7 @@ import src.Simulator;
 public class Program {
     public static void main(String[] args) throws IOException {
         // GUI test = new GUI();
-        start("TestProgramme/TPicSim3.LST");
+        start("TestProgramme/TPicSim6.LST");
     }
 
     private static void start(String file) throws IOException{

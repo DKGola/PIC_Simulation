@@ -22,18 +22,17 @@ public class Simulator {
      */
     public void nextInstruction() {
         System.out.println("\n");
-        System.out.println("W: " + wRegister);
+        System.out.printf("W %x\n", wRegister);
         for(int i = 0; i < ram[0].length; i++){
             if(i % 8 == 0){
                 System.out.println();
             }
-            System.out.print(ram[0][i] + " ,");
+            System.out.printf("%x, ", ram[0][i]);
         }
-        int index = programCounter;
         programCounter++;
         ram[0][2] = programCounter & 0b1111_1111;
         ram[1][2] = programCounter & 0b1111_1111;
-        decoder.decode(rom[index]);
+        decoder.decode(rom[programCounter - 1]);
     }
 
     public void powerOnReset(){
