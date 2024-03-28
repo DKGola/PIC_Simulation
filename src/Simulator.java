@@ -21,6 +21,14 @@ public class Simulator {
      * reads next instruction and gives it to the decoder
      */
     public void nextInstruction() {
+        System.out.println("\n");
+        System.out.println("W: " + wRegister);
+        for(int i = 0; i < ram[0].length; i++){
+            if(i % 8 == 0){
+                System.out.println();
+            }
+            System.out.print(ram[0][i] + " ,");
+        }
         int index = programCounter;
         programCounter++;
         ram[0][2] = programCounter & 0b1111_1111;
