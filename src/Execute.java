@@ -25,6 +25,20 @@ public class Execute {
         }
     }
 
+    private void write(int file, int value, int destinationBit){
+        if(destinationBit == 1){
+            write(file, value);
+        }else{
+            Simulator.wRegister = value;
+        }
+    }
+
+    private void testPCL(int file, int value){
+        if(file == 2){
+            Simulator.programCounter = (value + ((ram[getRb0()][10] & 0b001_111) << 8));
+        }
+    }
+
     private int getRb0() {
         return (ram[0][3] & 0b0010_0000) >> 5;
     }
@@ -34,6 +48,30 @@ public class Execute {
             write(3, ram[0][3] & ~(1 << flag.value));
         }else if(value == 1){
             write(3, ram[0][3] | (1 << flag.value));
+        }
+    }
+
+    private void testResultZero(int result){
+        if(result == 0){
+            setFlag(Flags.Zero, 1);
+        }else{
+            setFlag(Flags.Zero, 0);
+        }
+    }
+
+    private void testResultCarry(int result){
+        if (result > 255) {
+            setFlag(Flags.Carry, 1);
+        } else {
+            setFlag(Flags.Carry, 0);
+        }
+    }
+
+    private void testResultDigitCarry(int result){
+        if (result > 15) {
+            setFlag(Flags.DigitCarry, 1);
+        } else {
+            setFlag(Flags.DigitCarry, 0);
         }
     }
 
@@ -50,34 +88,18 @@ public class Execute {
 
         // check DC and set if necessary
         int digitCarryResult = (Simulator.wRegister & 0xF) + (ram[getRb0()][file] & 0xF);
-        if (digitCarryResult > 15) {
-            setFlag(Flags.DigitCarry, 1);
-        } else {
-            setFlag(Flags.DigitCarry, 0);
-        }
+        testResultDigitCarry(digitCarryResult);
 
         // check Carry
-        if (result > 255) {
-            setFlag(Flags.Carry, 1);
-        } else {
-            setFlag(Flags.Carry, 0);
-        }
+        testResultCarry(result);
 
         // check Zero
-        if (result == 0) {
-            setFlag(Flags.Zero, 1);
-        } else {
-            setFlag(Flags.Zero, 0);
-        }
+        testResultZero(result);
 
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
 
-        if (destinationBit == 1) {
-            write(file, result);
-        } else {
-            Simulator.wRegister = result;
-        }
+        write(file, result, destinationBit);
     }
 
     public void ANDWF(int file, int destinationBit){
@@ -91,20 +113,12 @@ public class Execute {
 
 
         // check Zero
-        if (result == 0) {
-            setFlag(Flags.Zero, 1);
-        } else {
-            setFlag(Flags.Zero, 0);
-        }
+        testResultZero(result);
 
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
 
-        if (destinationBit == 1) {
-            write(file, result);
-        } else {
-            Simulator.wRegister = result;
-        }
+        write(file, result, destinationBit);
     }
 
     public void CLRF(int file){
@@ -128,18 +142,10 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ~ram[getRb0()][file];
-        if(result == 0){
-            setFlag(Flags.Zero, 1);
-        }else{
-            setFlag(Flags.Zero, 0);
-        }
+        int result = ~ram[getRb0()][file] & 0xFF;
+        testResultZero(result);
 
-        if(destinationBit == 1){
-            write(file, result);
-        }else{
-            Simulator.wRegister = result;
-        }
+        write(file, result, destinationBit);
     }
 
     public void DECF(int file, int destinationBit){
@@ -150,12 +156,8 @@ public class Execute {
 
         int result = ram[getRb0()][file] - 1;
         result = result & 0xFF;
-        if(result == 0){
-            setFlag(Flags.Zero, 1);
-        }else{
-            setFlag(Flags.Zero, 0);
-        }
-        write(file, result);
+        testResultZero(result);
+        write(file, result, destinationBit);
     }
 
     public void DECFSZ(int file, int destinationBit){
@@ -166,11 +168,9 @@ public class Execute {
 
         int result = ram[getRb0()][file] - 1;
         result = result & 0xFF;
+        testResultZero(result);
         if(result == 0){
-            setFlag(Flags.Zero, 1);
             Simulator.programCounter++;
-        }else{
-            setFlag(Flags.Zero, 0);
         }
         write(file, result);
     }
@@ -183,12 +183,8 @@ public class Execute {
 
         int result = ram[getRb0()][file] + 1;
         result = result & 0xFF;
-        if(result == 0){
-            setFlag(Flags.Zero, 1);
-        }else{
-            setFlag(Flags.Zero, 0);
-        }
-        write(file, result);
+        testResultZero(result);
+        write(file, result, destinationBit);
     }
 
     public void INCFSZ(int file, int destinationBit){
@@ -199,13 +195,11 @@ public class Execute {
 
         int result = ram[getRb0()][file] + 1;
         result = result & 0xFF;
+        testResultZero(result);
         if(result == 0){
-            setFlag(Flags.Zero, 1);
             Simulator.programCounter++;
-        }else{
-            setFlag(Flags.Zero, 0);
         }
-        write(file, result);
+        write(file, result, destinationBit);
     }
 
     public void IORWF(int file, int destinationBit){
@@ -215,12 +209,8 @@ public class Execute {
         }
 
         int result = Simulator.wRegister | ram[getRb0()][file];
-        if(result == 0){
-            setFlag(Flags.Zero, 1);
-        }else{
-            setFlag(Flags.Zero, 0);
-        }
-        write(file, result);
+        testResultZero(result);
+        write(file, result, destinationBit);
     }   
 
     public void MOVF(int file, int destinationBit){
@@ -229,11 +219,8 @@ public class Execute {
             file = ram[0][4];
         }
 
-        if(ram[getRb0()][file] == 0){
-            setFlag(Flags.Zero, 1);
-        }else{
-            setFlag(Flags.Zero, 0);
-        }
+        int result = ram[getRb0()][file];
+        testResultZero(result);
 
         if(destinationBit == 0){
             Simulator.wRegister = ram[getRb0()][file];
@@ -259,15 +246,15 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int carryFlag = ram[0][3] & ~(1 << Flags.Carry.value);
+        int carryFlag = ram[0][3] & 1;
 
-        int result = ram[getRb0()][file] << 1 + carryFlag;
+        int result = (ram[getRb0()][file] << 1) + carryFlag;
 
-        if(destinationBit == 1){
-            write(file, result);
-        }else{
-            Simulator.wRegister = result;
-        }
+        testResultCarry(result);
+
+        result = result & 0xFF;
+
+        write(file, result, destinationBit);
     }
 
     public void RRF(int file, int destinationBit){
@@ -276,15 +263,17 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int carryFlag = ram[0][3] & ~(1 << Flags.Carry.value);
+        int carryFlag = ram[0][3] & 1;
         
-        int result = ram[getRb0()][file] >> 1 + (carryFlag << 7);
+        int lowerBit = ram[getRb0()][file] & 1;
 
-        if(destinationBit == 1){
-            write(file, result);
-        }else{
-            Simulator.wRegister = result;
-        }
+        int result = (ram[getRb0()][file] >> 1) + (carryFlag << 7);
+
+        result = result & 0xFF;
+
+        setFlag(Flags.Carry, lowerBit);
+
+        write(file, result, destinationBit);
     }
 
     // Test needed
@@ -294,39 +283,30 @@ public class Execute {
             file = ram[0][4];
         }
         
-        int result = Simulator.wRegister + (~ram[getRb0()][file] + 1);
+        int result = ram[getRb0()][file] - Simulator.wRegister;
 
         // check DC and set if necessary
-        int digitCarryResult = (Simulator.wRegister & 0xF) + ((~ram[getRb0()][file] + 1) & 0xF);
+        int digitCarryResult = (ram[getRb0()][file] & 0xF) - (Simulator.wRegister & 0xF);
 
-        if (digitCarryResult > 15) {
-            setFlag(Flags.DigitCarry, 1);
-        } else {
-            setFlag(Flags.DigitCarry, 0);
-        }
-
-        // check Carry
-        if (result > 255) {
-            setFlag(Flags.Carry, 1);
-        } else {
+        if(result < 0){
             setFlag(Flags.Carry, 0);
+        }else{
+            setFlag(Flags.Carry, 1);
         }
 
-        // check Zero
-        if (result == 0) {
-            setFlag(Flags.Zero, 1);
-        } else {
-            setFlag(Flags.Zero, 0);
+        if(digitCarryResult < 0){
+            setFlag(Flags.DigitCarry, 0);
+        }else{
+            setFlag(Flags.DigitCarry, 1);
         }
 
         // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
 
-        if (destinationBit == 1) {
-            write(file, result);
-        } else {
-            Simulator.wRegister = result;
-        }
+        // check Zero
+        testResultZero(result);
+
+        write(file, result, destinationBit);
     }
 
     public void SWAPF(int file, int destinationBit){
@@ -339,11 +319,7 @@ public class Execute {
         int lower = ram[getRb0()][file] & 0xF;
         int result = (lower << 4) + (upper >> 4);
 
-        if(destinationBit == 1){
-            write(file, result);
-        }else{
-            Simulator.wRegister = result;
-        }
+        write(file, result, destinationBit);
     }
 
     public void XORWF(int file, int destinationBit){
@@ -353,17 +329,9 @@ public class Execute {
         }
 
         int result = Simulator.wRegister ^ ram[getRb0()][file];
-        if(result == 0){
-            setFlag(Flags.Zero, 1);
-        }else{
-            setFlag(Flags.Zero, 0);
-        }
+        testResultZero(result);
 
-        if(destinationBit == 1){
-            write(file, result);
-        }else{
-            Simulator.wRegister = result;
-        }
+        write(file, result, destinationBit);
     }
 
 
@@ -415,39 +383,23 @@ public class Execute {
 
     // Literal and Control Instructions
     public void ADDLW(int literal){
-        int result = Simulator.wRegister + literal;
+        int result = literal + Simulator.wRegister;
         int digitResult = (Simulator.wRegister & 0xF) + (literal & 0xF);
 
-        if(result > 255){
-            setFlag(Flags.Carry, 1);
-        }else{
-            setFlag(Flags.Carry, 0);
-        }
+        testResultCarry(result);
 
-        if(digitResult > 15){
-            setFlag(Flags.DigitCarry, 1);
-        }else{
-            setFlag(Flags.DigitCarry, 0);
-        }
+        testResultDigitCarry(digitResult);
 
         result = result & 0xFF;
 
-        if(result == 0){
-            setFlag(Flags.Zero, 1);
-        }else{
-            setFlag(Flags.Zero, 0);
-        }
+        testResultZero(result);
 
         Simulator.wRegister = result;
     }
 
     public void ANDLW(int literal){
         int result = Simulator.wRegister & literal;
-        if(result == 0){
-            setFlag(Flags.Zero, 1);
-        }else{
-            setFlag(Flags.Zero, 0);
-        }
+        testResultZero(result);
         Simulator.wRegister = result;
     }
 
@@ -466,11 +418,7 @@ public class Execute {
 
     public void IORLW(int literal){
         int result = (Simulator.wRegister | literal);
-        if (result == 0) {
-            setFlag(Flags.Zero, 1);
-        } else {
-            setFlag(Flags.Zero, 0);
-        }
+        testResultZero(result);
         Simulator.wRegister = result;
     }
 
@@ -497,22 +445,30 @@ public class Execute {
 
     // Test
     public void SUBLW(int literal){
-        ADDLW(~literal + 1);
+        int result = literal - Simulator.wRegister;
+        int digitResult = (literal & 0xF) - (Simulator.wRegister & 0xF);
+
+        if(result < 0){
+            setFlag(Flags.Carry, 0);
+        }else{
+            setFlag(Flags.Carry, 1);
+        }
+
+        if(digitResult < 0){
+            setFlag(Flags.DigitCarry, 0);
+        }else{
+            setFlag(Flags.DigitCarry, 1);
+        }
+
+        result = result & 0xFF;
+
+        testResultZero(result);
+
+        Simulator.wRegister = result;
     }
 
     public void XORLW(int literal){
         int result = Simulator.wRegister ^ literal;
-        if(result == 0){
-            setFlag(Flags.Zero, 1);
-        }else{
-            setFlag(Flags.Zero, 0);
-        }
         Simulator.wRegister = result;
-    }
-
-    private void testPCL(int file, int value){
-        if(file == 2){
-            Simulator.programCounter = (value + ((ram[getRb0()][10] & 0b001_111) << 8));
-        }
     }
 }
