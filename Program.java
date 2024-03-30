@@ -7,8 +7,9 @@ import src.GUI;
 import src.Simulator;
 
 public class Program {
+    private static GUI test;
     public static void main(String[] args) throws IOException {
-        GUI test = new GUI();
+        test = new GUI();
         start("TestProgramme/TPicSim1.LST");
     }
 
@@ -26,7 +27,7 @@ public class Program {
             }
         }
         reader.close();
-
+        test.LSTTextPane.setText(readFile);
         Simulator simulator = new Simulator(instructions);
         while (true){
             simulator.nextInstruction();
