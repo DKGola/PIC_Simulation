@@ -2,10 +2,17 @@ package src;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GUI extends JFrame {
 
@@ -22,36 +29,63 @@ public class GUI extends JFrame {
     private JTable table1;
     private JTable table2;
     private JPanel mainPanel;
+    private JTable table3;
 
     public GUI() {
         setSize(1200, 800);
         setVisible(true);
         setContentPane(mainPanel);
 
-        // ActionListener für den File-Button hinzufügen
         fileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Dateiauswahldialog anzeigen
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setDialogTitle("Select LST File");
                 fileChooser.setFileFilter(new FileNameExtensionFilter("LST Files", "lst"));
                 int userSelection = fileChooser.showOpenDialog(GUI.this);
 
                 if (userSelection == JFileChooser.APPROVE_OPTION) {
-                    // Datei auswählen und einlesen
+                    // Datei auswählen
                     java.io.File selectedFile = fileChooser.getSelectedFile();
                     try {
                         BufferedReader reader = new BufferedReader(new FileReader(selectedFile));
+                        // Tabelle füllen
+                        List<String> lines = new ArrayList<>();
+                        // Zeilen einzeln einlesen
                         String line;
-                        StringBuilder content = new StringBuilder();
                         while ((line = reader.readLine()) != null) {
-                            content.append(line).append("\n");
+                            lines.add(line);
                         }
-                        reader.close();
 
-                        // Inhalt im LST-Text-Fenster anzeigen
-                        LSTTextPane.setText(content.toString());
+                        // Tabelle mit zwei Spalten erstellen
+                        DefaultTableModel model = new DefaultTableModel() {
+                            @Override
+                            public Class<?> getColumnClass(int columnIndex) {
+                                if (columnIndex == 0) {
+                                    return Boolean.class; // Erste Spalte ist vom Typ Boolean für Checkboxen
+                                } else {
+                                    return super.getColumnClass(columnIndex);
+                                }
+                            }
+                        };
+                        model.addColumn("BP");
+                        model.addColumn("Commands");
+
+                        // Tabellenzeilen füllen
+                        for (String l : lines) {
+                            model.addRow(new Object[]{false, l}); // Breakpoint standardmäßig auf false setzen
+                        }
+
+                        table3.setModel(model);
+                        // Spaltenbreite Breakpoint
+                        TableColumnModel columnModel = table3.getColumnModel();
+                        columnModel.getColumn(0).setMaxWidth(30);
+
+                        columnModel.getColumn(0).setCellRenderer(new CheckBoxRenderer());
+                        columnModel.getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox()));
+
+
+                        reader.close();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(GUI.this, "Error reading file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -59,6 +93,16 @@ public class GUI extends JFrame {
                 }
             }
         });
+    }
+
+    class CheckBoxRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
+        JCheckBox checkBox = new JCheckBox();
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            checkBox.setSelected((Boolean) value); // Checkbox entsprechend des Werts in der Zelle setzen
+            return checkBox;
+        }
     }
 
     public static void main(String[] args) {
