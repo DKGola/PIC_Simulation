@@ -19,7 +19,7 @@ public class Execute {
     }
 
     private void write(int file, int value) {
-        if (file == 1){
+        if (file == 1) {
             prescalerCount = 0;
         }
         List<Integer> shared = Arrays.asList(2, 3, 4, 10, 11);
@@ -86,29 +86,20 @@ public class Execute {
         }
     }
 
-    public void updateTMR0()
-    {
+    public void updateTMR0() {
         // Option reg T0CS
-        if(getFlag(Flags.TimerClockSource) == 0)
-        {
+        if (getFlag(Flags.TimerClockSource) == 0) {
             incrementTRM0();
-        }
-        else
-        {
+        } else {
             int RA4 = ram[0][6] & 0b0001_0000;
-            if(getFlag(Flags.TimerSourceEdge) == 0)
-            {
+            if (getFlag(Flags.TimerSourceEdge) == 0) {
                 // low-to-high
-                if (previasInput < RA4)
-                {
+                if (previasInput < RA4) {
                     incrementTRM0();
                 }
-            }
-            else
-            {
+            } else {
                 // high-to-low
-                if (previasInput > RA4)
-                {
+                if (previasInput > RA4) {
                     incrementTRM0();
                 }
             }
@@ -119,7 +110,7 @@ public class Execute {
     private void incrementTRM0() {
         if (getFlag(Flags.PrescalerAssignment) == 0) {
             prescalerCount++;
-            if (prescalerCount == (int)Math.pow(2, (ram[1][1] & 0b0000_0111) + 1)){
+            if (prescalerCount == (int) Math.pow(2, (ram[1][1] & 0b0000_0111) + 1)) {
                 ram[0][1]++;
                 prescalerCount = 0;
             }
@@ -132,6 +123,10 @@ public class Execute {
         if (ram[0][1] > 255) {
             setFlag(Flags.TImerOverflow, 1);
             setFlag(Flags.Zero, 1);
+            if (getFlag(Flags.TimerInterrupt) == 1) {
+                setFlag(Flags.GlobalInterruptEnable, 0);
+                CALL(4);
+            }
             ram[0][1] = 0;
         }
     }
@@ -489,7 +484,8 @@ public class Execute {
     }
 
     public void RETFIE() {
-
+        setFlag(Flags.GlobalInterruptEnable, 1);
+        Simulator.programCounter = returnStack.pop();
     }
 
     public void RETLW(int literal) {
