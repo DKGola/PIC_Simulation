@@ -5,8 +5,8 @@ package src;
  */
 public class Decoder {
     private Execute execute;
-    public Decoder(int[][] ram) {
-        execute =  new Execute(ram);
+    public Decoder(int[][] ram, Execute execute) {
+        this.execute =  execute;
     }
 
     private int readBit(int commandCode, int k) {
