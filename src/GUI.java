@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,9 @@ public class GUI extends JFrame {
     private JTable table2;
     private JPanel mainPanel;
     private JTable table3;
+    private Simulator simulator;
+    private File selectedFile;
+
 
     public GUI() {
         setSize(1200, 800);
@@ -47,6 +51,7 @@ public class GUI extends JFrame {
                 if (userSelection == JFileChooser.APPROVE_OPTION) {
                     // Datei auswählen
                     java.io.File selectedFile = fileChooser.getSelectedFile();
+                    setSelectedFile(selectedFile); // Speichern Sie das ausgewählte Dateiobjekt
                     try {
                         BufferedReader reader = new BufferedReader(new FileReader(selectedFile));
                         // Tabelle füllen
@@ -93,8 +98,65 @@ public class GUI extends JFrame {
                 }
             }
         });
+
+
+        // Run Button
+        runButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Program.running = true;
+                Program.runProgram();
+            }
+        });
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Program.running = false;
+            }
+        });
     }
 
+    public void setSimulator(Simulator simulator) {
+        this.simulator = simulator;
+    }
+
+    public File getSelectedFile() {
+        if (selectedFile != null) {
+            System.out.println("get selected file: " + selectedFile.getAbsolutePath());
+        }
+        return selectedFile;
+    }
+
+    public File waitForSelectedFile() {
+        File selectedFile = null;
+        while (selectedFile == null) {
+            selectedFile = getSelectedFile();
+            try {
+                Thread.sleep(100); // Kurze Pause, um die CPU nicht zu belasten
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return selectedFile;
+    }
+
+
+    public void setSelectedFile(File file) {
+        this.selectedFile = file;
+    }
+
+    /**
+     * highlights the current line in the GUI
+     * @param line line to be highlighted
+     */
+    public void highlightCommand(int line) {
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+        renderer.setBackground(Color.PINK);
+        table3.getColumnModel().getColumn(1).setCellRenderer(renderer);
+        table3.repaint();
+    }
+
+    // Checkboxen
     class CheckBoxRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
         JCheckBox checkBox = new JCheckBox();
 
