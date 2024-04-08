@@ -6,6 +6,7 @@ public class Simulator {
     public static int programCounter;
     public static int wRegister;
     private Decoder decoder;
+    private Execute execute;
 
 
     public Simulator(int[] instructions) {
@@ -14,7 +15,8 @@ public class Simulator {
         ram = new int[2][128];
         programCounter = 0;
         powerOnReset();
-        decoder = new Decoder(ram);
+        execute = new Execute(ram);
+        decoder = new Decoder(ram, execute);
     }
 
     /**
@@ -33,12 +35,14 @@ public class Simulator {
         ram[0][2] = programCounter & 0b1111_1111;
         ram[1][2] = programCounter & 0b1111_1111;
         decoder.decode(rom[programCounter - 1]);
+        execute.updateTMR0();
     }
+
 
     public void powerOnReset(){
         int[][] values = {
             {0, 0, 0b0001_1000, 0, 0, 0, 0, 0, 0, 0, 0},
-            {1, 0, 0b0001_1000, 0, 0b001_1111, 0b1111_1111, 0, 0, 0, 0, 0}
+            {0b1111_1111, 0, 0b0001_1000, 0, 0b001_1111, 0b1111_1111, 0, 0, 0, 0, 0}
         };
         for (int i = 0; i < values.length; i++){
             for(int j = 0; j < values[i].length; j++){
