@@ -11,24 +11,34 @@ public class Execute {
     private int[][] ram;
     private Stack<Integer> returnStack = new Stack<Integer>();
     private int prescalerCount = 0;
-    private int previasInput;
+    private int previousInput;
+    private int previousRB7ToRB4;
+    private int previousRB0;
 
     public Execute(int[][] ram) {
         this.ram = ram;
-        previasInput = ram[0][5] & 0b0001_0000;
+        previousInput = ram[0][5] & 0b0001_0000;
+        previousRB0 = ram[0][6] & 1;
+        previousRB7ToRB4 = ram[0][6] & 0b1111_0000;
     }
 
     private void write(int file, int value) {
+        // file 7 is not implememnted
+        if(file == 7){
+            return;
+        }
+
         if (file == 1) {
             prescalerCount = 0;
         }
+
         List<Integer> shared = Arrays.asList(2, 3, 4, 10, 11);
         testPCL(file, value);
         if (shared.contains(file) || file >= 0x0C) {
             ram[0][file] = value;
             ram[1][file] = value;
         } else {
-            ram[getRb0()][file] = value;
+            ram[getRP0()][file] = value;
         }
     }
 
@@ -42,11 +52,11 @@ public class Execute {
 
     private void testPCL(int file, int value) {
         if (file == 2) {
-            Simulator.programCounter = (value + ((ram[getRb0()][10] & 0b001_111) << 8));
+            Simulator.programCounter = (value + ((ram[getRP0()][10] & 0b0001_1111) << 8));
         }
     }
 
-    private int getRb0() {
+    private int getRP0() {
         return (ram[0][3] & 0b0010_0000) >> 5;
     }
 
@@ -91,19 +101,19 @@ public class Execute {
         if (getFlag(Flags.TimerClockSource) == 0) {
             incrementTRM0();
         } else {
-            int RA4 = ram[0][6] & 0b0001_0000;
+            int RA4 = ram[0][5] & 0b0001_0000;
             if (getFlag(Flags.TimerSourceEdge) == 0) {
                 // low-to-high
-                if (previasInput < RA4) {
+                if (previousInput < RA4) {
                     incrementTRM0();
                 }
             } else {
                 // high-to-low
-                if (previasInput > RA4) {
+                if (previousInput > RA4) {
                     incrementTRM0();
                 }
             }
-            previasInput = RA4;
+            previousInput = RA4;
         }
     }
 
@@ -123,11 +133,52 @@ public class Execute {
         if (ram[0][1] > 255) {
             setFlag(Flags.TImerOverflow, 1);
             setFlag(Flags.Zero, 1);
-            if (getFlag(Flags.TimerInterrupt) == 1) {
-                setFlag(Flags.GlobalInterruptEnable, 0);
-                CALL(4);
+            if (getFlag(Flags.TimerInterrupt) == 1 && getFlag(Flags.GlobalInterruptEnable) == 0) {
+                setFlag(Flags.GlobalInterruptEnable, 1);
+                returnStack.add(Simulator.programCounter);
+                Simulator.programCounter = 4;
             }
             ram[0][1] = 0;
+        }
+    }
+
+    public void CheckInterrupt(){
+        // RB0 bit
+        int RB0 = ram[0][6] & 1;
+        // low to high
+        if(getFlag(Flags.InterruptEdgeSelect) == 1){
+            if(RB0 > previousRB0){
+                RB0Interrupt();
+            }
+            
+        // Hight to low
+        }else{
+            if (RB0 > previousRB0){
+                RB0Interrupt();
+            }
+        }
+        previousRB0 = RB0;
+
+        // RB Port CHange Interrupt
+        int RB7ToRB4 = ram[0][6] & 0b11110000; 
+        if(RB7ToRB4 != previousRB7ToRB4){
+            setFlag(Flags.RBInterrupt, 1);
+            if(getFlag(Flags.RBPortChangeEnable) == 1 && getFlag(Flags.GlobalInterruptEnable) == 1){
+                setFlag(Flags.GlobalInterruptEnable, 0);
+                returnStack.add(Simulator.programCounter);
+                Simulator.programCounter = 4;
+            }
+        }
+        previousRB7ToRB4 = RB7ToRB4;
+    }
+
+    private void RB0Interrupt(){
+        setFlag(Flags.RB0Interrupt, 1);
+        // Interrupt when enable
+        if(getFlag(Flags.GlobalInterruptEnable) == 1 && getFlag(Flags.RB0InterruptEnable) == 1){
+            setFlag(Flags.GlobalInterruptEnable, 0);
+            returnStack.add(Simulator.programCounter);
+            Simulator.programCounter = 4;
         }
     }
 
@@ -139,10 +190,10 @@ public class Execute {
         }
 
         // ADD
-        int result = Simulator.wRegister + ram[getRb0()][file];
+        int result = Simulator.wRegister + ram[getRP0()][file];
 
         // check DC and set if necessary
-        int digitCarryResult = (Simulator.wRegister & 0xF) + (ram[getRb0()][file] & 0xF);
+        int digitCarryResult = (Simulator.wRegister & 0xF) + (ram[getRP0()][file] & 0xF);
         testResultDigitCarry(digitCarryResult);
 
         // check Carry
@@ -164,7 +215,7 @@ public class Execute {
         }
 
         // AND
-        int result = Simulator.wRegister & ram[getRb0()][file];
+        int result = Simulator.wRegister & ram[getRP0()][file];
 
         // check Zero
         testResultZero(result);
@@ -196,7 +247,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ~ram[getRb0()][file] & 0xFF;
+        int result = ~ram[getRP0()][file] & 0xFF;
         testResultZero(result);
 
         write(file, result, destinationBit);
@@ -208,7 +259,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file] - 1;
+        int result = ram[getRP0()][file] - 1;
         result = result & 0xFF;
         testResultZero(result);
         write(file, result, destinationBit);
@@ -220,7 +271,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file] - 1;
+        int result = ram[getRP0()][file] - 1;
         result = result & 0xFF;
         testResultZero(result);
         if (result == 0) {
@@ -236,7 +287,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file] + 1;
+        int result = ram[getRP0()][file] + 1;
         result = result & 0xFF;
         testResultZero(result);
         write(file, result, destinationBit);
@@ -248,7 +299,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file] + 1;
+        int result = ram[getRP0()][file] + 1;
         result = result & 0xFF;
         testResultZero(result);
         if (result == 0) {
@@ -264,7 +315,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = Simulator.wRegister | ram[getRb0()][file];
+        int result = Simulator.wRegister | ram[getRP0()][file];
         testResultZero(result);
         write(file, result, destinationBit);
     }
@@ -275,11 +326,11 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file];
+        int result = ram[getRP0()][file];
         testResultZero(result);
 
         if (destinationBit == 0) {
-            Simulator.wRegister = ram[getRb0()][file];
+            Simulator.wRegister = ram[getRP0()][file];
         }
     }
 
@@ -304,7 +355,7 @@ public class Execute {
 
         int carryFlag = ram[0][3] & 1;
 
-        int result = (ram[getRb0()][file] << 1) + carryFlag;
+        int result = (ram[getRP0()][file] << 1) + carryFlag;
 
         testResultCarry(result);
 
@@ -321,9 +372,9 @@ public class Execute {
 
         int carryFlag = ram[0][3] & 1;
 
-        int lowerBit = ram[getRb0()][file] & 1;
+        int lowerBit = ram[getRP0()][file] & 1;
 
-        int result = (ram[getRb0()][file] >> 1) + (carryFlag << 7);
+        int result = (ram[getRP0()][file] >> 1) + (carryFlag << 7);
 
         result = result & 0xFF;
 
@@ -339,10 +390,10 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file] - Simulator.wRegister;
+        int result = ram[getRP0()][file] - Simulator.wRegister;
 
         // check DC and set if necessary
-        int digitCarryResult = (ram[getRb0()][file] & 0xF) - (Simulator.wRegister & 0xF);
+        int digitCarryResult = (ram[getRP0()][file] & 0xF) - (Simulator.wRegister & 0xF);
 
         if (result < 0) {
             setFlag(Flags.Carry, 0);
@@ -371,8 +422,8 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int upper = ram[getRb0()][file] & 0xF0;
-        int lower = ram[getRb0()][file] & 0xF;
+        int upper = ram[getRP0()][file] & 0xF0;
+        int lower = ram[getRP0()][file] & 0xF;
         int result = (lower << 4) + (upper >> 4);
 
         write(file, result, destinationBit);
@@ -384,7 +435,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = Simulator.wRegister ^ ram[getRb0()][file];
+        int result = Simulator.wRegister ^ ram[getRP0()][file];
         testResultZero(result);
 
         write(file, result, destinationBit);
@@ -397,7 +448,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file] & ~(1 << bit);
+        int result = ram[getRP0()][file] & ~(1 << bit);
         write(3, result);
     }
 
@@ -407,7 +458,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file] | (1 << bit);
+        int result = ram[getRP0()][file] | (1 << bit);
         write(file, result);
     }
 
@@ -417,7 +468,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file] & (1 << bit);
+        int result = ram[getRP0()][file] & (1 << bit);
         if (result == 0) {
             Simulator.programCounter++;
             updateTMR0();
@@ -430,7 +481,7 @@ public class Execute {
             file = ram[0][4];
         }
 
-        int result = ram[getRb0()][file] & (1 << bit);
+        int result = ram[getRP0()][file] & (1 << bit);
         if (result != 0) {
             Simulator.programCounter++;
             updateTMR0();
@@ -484,7 +535,7 @@ public class Execute {
     }
 
     public void RETFIE() {
-        setFlag(Flags.GlobalInterruptEnable, 1);
+        setFlag(Flags.GlobalInterruptEnable, 0);
         Simulator.programCounter = returnStack.pop();
     }
 

@@ -36,6 +36,7 @@ public class Simulator {
         ram[1][2] = programCounter & 0b1111_1111;
         decoder.decode(rom[programCounter - 1]);
         execute.updateTMR0();
+        execute.CheckInterrupt();
     }
 
 
