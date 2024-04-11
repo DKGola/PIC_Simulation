@@ -39,7 +39,6 @@ public class Simulator {
         execute.CheckInterrupt();
     }
 
-
     public void powerOnReset(){
         int[][] values = {
             {0, 0, 0b0001_1000, 0, 0, 0, 0, 0, 0, 0, 0},
