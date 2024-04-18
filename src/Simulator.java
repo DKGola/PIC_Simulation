@@ -15,6 +15,7 @@ public class Simulator {
         powerOnReset();
         execute = new Execute(ram);
         decoder = new Decoder(ram, execute);
+        execute.interrupts.simulator = this;
     }
 
     /**
@@ -36,7 +37,7 @@ public class Simulator {
             ram[1][2] = programCounter & 0b1111_1111;
             decoder.decode(rom[programCounter - 1]);
         }
-        execute.CheckInterrupt();
+        execute.interrupts.CheckInterrupt();
         // update GUI after instruction was executed
         Program.gui.updateGUI(Program.simulator);
     }
