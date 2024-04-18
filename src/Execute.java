@@ -56,10 +56,6 @@ public class Execute {
     }
 
     public void setFlag(Flags flag, int value) {
-        if(flag == Flags.PrescalerAssignment){
-            interrupts.SetPrescaler(0);
-        }
-
         if (value == 0) {
             write(flag.register, ram[flag.bank][flag.register] & ~(1 << flag.bit));
         } else if (value == 1) {
