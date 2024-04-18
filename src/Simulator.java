@@ -39,6 +39,7 @@ public class Simulator {
         execute.CheckInterrupt();
         // update GUI after instruction was executed
         Program.gui.updateGUI(Program.simulator);
+        Program.gui.setLine();
     }
 
     public void powerOnReset(){

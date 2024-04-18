@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Program {
     public static boolean running;
@@ -63,7 +64,7 @@ public class Program {
             simulator.nextInstruction();
             // 1000 milliseconds delay after every instruction
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }

@@ -126,6 +126,19 @@ public class GUI extends JFrame {
                 Program.running = false;
             }
         });
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Program.simulator.powerOnReset();
+                Program.gui.updateGUI(Program.simulator);
+            }
+        });
+        stepButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Program.simulator.nextInstruction();
+            }
+        });
     }
 
     public File getSelectedFile() {
@@ -140,7 +153,7 @@ public class GUI extends JFrame {
         while (selectedFile == null) {
             selectedFile = getSelectedFile();
             try {
-                Thread.sleep(100); // Kurze Pause, um die CPU nicht zu belasten
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -153,19 +166,36 @@ public class GUI extends JFrame {
         this.selectedFile = file;
     }
 
-    /**
-     * highlights the current line in the GUI
-     * @param line line to be highlighted
-     */
     public void highlightCommand(int line) {
-        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
-        renderer.setBackground(Color.PINK);
-        table3.setRowSelectionInterval(line, line); // Markiere die angegebene Zeile
+        System.out.println("\nLINE: " + line);
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                System.out.println("LINE IN COMPONENT: " + line);
+                if (row == line - 1) {
+                    c.setBackground(Color.PINK);
+                } else {
+                    c.setBackground(Color.WHITE);
+                }
+
+                return c;
+            }
+        };
+
         table3.getColumnModel().getColumn(1).setCellRenderer(renderer);
         table3.repaint();
     }
 
 
+    /**
+     * highlights the current line in the GUI
+     * @param line line to be highlighted
+     */
+/**    public void highlightCommand(int line) {
+        cell.setBackground(Color.PINK);
+        return cell;
+    } **/
 
     // Checkboxen
     class CheckBoxRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
@@ -173,7 +203,7 @@ public class GUI extends JFrame {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            checkBox.setSelected((Boolean) value); // Checkbox entsprechend des Werts in der Zelle setzen
+            checkBox.setSelected((Boolean) value);
             return checkBox;
         }
     }
@@ -187,6 +217,7 @@ public class GUI extends JFrame {
             SwingUtilities.invokeLater(() -> updateGUI(simulator));
             return;
         }
+        setLine();
         // highlight line
         highlightCommand(line);
 
@@ -206,6 +237,9 @@ public class GUI extends JFrame {
 
     public void setLines(int[] lines) {
         this.lines = lines;
+        this.line = lines[Simulator.programCounter];
+    }
+    public void setLine() {
         this.line = lines[Simulator.programCounter];
     }
 }
