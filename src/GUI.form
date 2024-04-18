@@ -237,7 +237,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="2b44e" class="javax.swing.JLabel">
+          <component id="2b44e" class="javax.swing.JLabel" binding="wRegisterLabel">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -250,7 +250,7 @@
               <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
             </constraints>
           </vspacer>
-          <component id="662dd" class="javax.swing.JLabel">
+          <component id="662dd" class="javax.swing.JLabel" binding="PCLabel">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -258,7 +258,7 @@
               <text value="PC: 0x..."/>
             </properties>
           </component>
-          <component id="cf1" class="javax.swing.JLabel">
+          <component id="cf1" class="javax.swing.JLabel" binding="PCLLabel">
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -266,7 +266,7 @@
               <text value="PCL: 0x..."/>
             </properties>
           </component>
-          <component id="a414e" class="javax.swing.JLabel">
+          <component id="a414e" class="javax.swing.JLabel" binding="PCLATHLabel">
             <constraints>
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -274,7 +274,7 @@
               <text value="PCLATH: 0x..."/>
             </properties>
           </component>
-          <component id="c45a3" class="javax.swing.JLabel">
+          <component id="c45a3" class="javax.swing.JLabel" binding="carryLabel">
             <constraints>
               <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -282,7 +282,7 @@
               <text value="Carry: 0x..."/>
             </properties>
           </component>
-          <component id="c4ca7" class="javax.swing.JLabel">
+          <component id="c4ca7" class="javax.swing.JLabel" binding="digitCarryLabel">
             <constraints>
               <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -290,7 +290,7 @@
               <text value="Digit Carry: 0x..."/>
             </properties>
           </component>
-          <component id="d0511" class="javax.swing.JLabel">
+          <component id="d0511" class="javax.swing.JLabel" binding="zeroLabel">
             <constraints>
               <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>

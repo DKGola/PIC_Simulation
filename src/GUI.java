@@ -31,8 +31,17 @@ public class GUI extends JFrame {
     private JTable table2;
     private JPanel mainPanel;
     private JTable table3;
+    private JLabel wRegisterLabel;
+    private JLabel PCLabel;
+    private JLabel PCLLabel;
+    private JLabel PCLATHLabel;
+    private JLabel carryLabel;
+    private JLabel digitCarryLabel;
+    private JLabel zeroLabel;
     private Simulator simulator;
     private File selectedFile;
+    private int[] lines;
+    private int line;
 
 
     public GUI() {
@@ -104,8 +113,11 @@ public class GUI extends JFrame {
         runButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (Program.running) {
+                    return;
+                }
                 Program.running = true;
-                Program.runProgram();
+                Thread thread = Thread.startVirtualThread(Program::runProgram);
             }
         });
         stopButton.addActionListener(new ActionListener() {
@@ -114,10 +126,6 @@ public class GUI extends JFrame {
                 Program.running = false;
             }
         });
-    }
-
-    public void setSimulator(Simulator simulator) {
-        this.simulator = simulator;
     }
 
     public File getSelectedFile() {
@@ -152,9 +160,12 @@ public class GUI extends JFrame {
     public void highlightCommand(int line) {
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
         renderer.setBackground(Color.PINK);
+        table3.setRowSelectionInterval(line, line); // Markiere die angegebene Zeile
         table3.getColumnModel().getColumn(1).setCellRenderer(renderer);
         table3.repaint();
     }
+
+
 
     // Checkboxen
     class CheckBoxRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
@@ -167,12 +178,34 @@ public class GUI extends JFrame {
         }
     }
 
+    /**
+     * Updates the GUI after each instruction called by the simulator
+     * @param simulator instance of Simulator
+     */
+    public void updateGUI(Simulator simulator) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> updateGUI(simulator));
+            return;
+        }
+        // highlight line
+        highlightCommand(line);
+
+        // update labels
+        wRegisterLabel.setText("W-Register: " + String.format("0x%X", Simulator.wRegister));
+        PCLabel.setText("PC: " + String.format("0x%X", Simulator.programCounter));
+        PCLLabel.setText("PCL: " + String.format("0x%X", simulator.getPCL()));
+        PCLATHLabel.setText("PCLATH: " + String.format("0x%X", simulator.getPCLath()));
+        carryLabel.setText("Carry: " + String.format("%d", simulator.getCarry()));
+        digitCarryLabel.setText("Digit Carry: " + String.format("%d", simulator.getDigitCarry()));
+        zeroLabel.setText("Zero: " + String.format("%d", simulator.getZero()));
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new GUI().setVisible(true);
-            }
-        });
+        SwingUtilities.invokeLater(() -> new GUI().setVisible(true));
+    }
+
+    public void setLines(int[] lines) {
+        this.lines = lines;
+        this.line = lines[Simulator.programCounter];
     }
 }

@@ -7,12 +7,12 @@ import java.io.IOException;
 
 public class Program {
     public static boolean running;
-    private static Simulator simulator; // Nicht statisch machen
-    private static GUI gui;
+    public static Simulator simulator;
+    public static GUI gui;
 
     public static void main(String[] args) throws IOException {
-        Program program = new Program(); // Neue Instanz von Program erstellen
-        program.start(); // Programm starten
+        Program program = new Program();
+        program.start();
     }
 
     public void start() throws IOException {
@@ -24,7 +24,7 @@ public class Program {
         // Eine Datei wurde ausgewählt
         System.out.println("Ausgewählte Datei: " + selectedFile.getAbsolutePath());
         loadInstructions(selectedFile);
-        running = true; // Set running to true when starting a new program
+        running = false; // Set running to false when starting a new program
         runProgram();
     }
 
@@ -34,28 +34,34 @@ public class Program {
         String input;
         StringBuilder readFile = new StringBuilder();
         int[] instructions = new int[1024];
+        int[] lines = new int[1024];
         int index = 0;
         while ((input = reader.readLine()) != null) {
             readFile.append(input).append("\n");
             if (!input.startsWith(" ")) {
-                instructions[index++] = Integer.parseInt(input.substring(5, 9), 16);
+                instructions[index] = Integer.parseInt(input.substring(5, 9), 16);
+                lines[index] = Integer.parseInt(input.substring(20,25));
+                index++;
             }
         }
         reader.close();
 
-        // Laden der Anweisungen in den Simulator
+        // load instructions in simulator
         simulator = new Simulator(instructions);
+        gui.setLines(lines);
     }
 
- //   private Simulator initSimulator(GUI gui) {
-//        int[] instructions = {};
-//        return new Simulator(instructions, gui);
-//    }
-
     public static void runProgram() {
+        // don't run if no file is selected
+        if (gui.getSelectedFile() == null) {
+            return;
+        }
+
+        // HIER RESET EINBAUEN
+
         while (running) {
             simulator.nextInstruction();
-            // 500 milliseconds delay after every instruction
+            // 1000 milliseconds delay after every instruction
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ie) {
