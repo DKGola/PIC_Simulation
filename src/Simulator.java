@@ -37,6 +37,8 @@ public class Simulator {
             decoder.decode(rom[programCounter - 1]);
         }
         execute.CheckInterrupt();
+        // update GUI after instruction was executed
+        Program.gui.updateGUI(Program.simulator);
     }
 
     public void powerOnReset(){
@@ -51,5 +53,25 @@ public class Simulator {
         }
         wRegister = 0;
         programCounter = 0;
+    }
+
+    public int getPCL() {
+        return ram[0][2];       // PCL is in RAM[0][2] and RAM[1][2]
+    }
+
+    public int getPCLath() {
+        return ram[0][10];      // PCLATH is in RAM[0][A] and RAM[1][A]
+    }
+
+    public int getCarry() {
+        return execute.getFlag(Flags.Carry);
+    }
+
+    public int getDigitCarry() {
+        return execute.getFlag(Flags.DigitCarry);
+    }
+
+    public int getZero() {
+        return execute.getFlag(Flags.Zero);
     }
 }
