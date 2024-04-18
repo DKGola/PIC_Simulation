@@ -11,9 +11,7 @@ public class Simulator {
 
     public Simulator(int[] instructions) {
         rom = instructions;
-        wRegister = 0;
         ram = new int[2][128];
-        programCounter = 0;
         powerOnReset();
         execute = new Execute(ram);
         decoder = new Decoder(ram, execute);
@@ -31,11 +29,13 @@ public class Simulator {
             }
             System.out.printf("%x, ", ram[0][i]);
         }
-        programCounter++;
-        ram[0][2] = programCounter & 0b1111_1111;
-        ram[1][2] = programCounter & 0b1111_1111;
-        decoder.decode(rom[programCounter - 1]);
-        execute.updateTMR0();
+        if (execute.isAsleep == false)
+        {
+            programCounter++;
+            ram[0][2] = programCounter & 0b1111_1111;
+            ram[1][2] = programCounter & 0b1111_1111;
+            decoder.decode(rom[programCounter - 1]);
+        }
         execute.CheckInterrupt();
     }
 
@@ -50,5 +50,6 @@ public class Simulator {
             }
         }
         wRegister = 0;
+        programCounter = 0;
     }
 }

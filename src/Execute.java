@@ -14,6 +14,7 @@ public class Execute {
     private int previousInput;
     private int previousRB7ToRB4;
     private int previousRB0;
+    public boolean isAsleep = false;
 
     public Execute(int[][] ram) {
         this.ram = ram;
@@ -100,7 +101,7 @@ public class Execute {
         }
     }
 
-    public void updateTMR0() {
+    private void updateTMR0() {
         // Option reg T0CS
         if (getFlag(Flags.TimerClockSource) == 0) {
             incrementTRM0();
@@ -138,6 +139,7 @@ public class Execute {
             setFlag(Flags.TImerOverflow, 1);
             setFlag(Flags.Zero, 1);
             if (getFlag(Flags.TimerInterrupt) == 1 && getFlag(Flags.GlobalInterruptEnable) == 0) {
+                // Timer Interrupt
                 setFlag(Flags.GlobalInterruptEnable, 1);
                 returnStack.add(Simulator.programCounter);
                 Simulator.programCounter = 4;
@@ -147,6 +149,9 @@ public class Execute {
     }
 
     public void CheckInterrupt(){
+        // check timer interrupt
+        updateTMR0();
+
         // RB0 bit
         int RB0 = ram[0][6] & 1;
         // low to high
@@ -163,7 +168,7 @@ public class Execute {
         }
         previousRB0 = RB0;
 
-        // RB Port CHange Interrupt
+        // RB Port Change Interrupt
         int RB7ToRB4 = ram[0][6] & 0b11110000; 
         if(RB7ToRB4 != previousRB7ToRB4){
             setFlag(Flags.RBInterrupt, 1);
@@ -177,6 +182,8 @@ public class Execute {
     }
 
     private void RB0Interrupt(){
+        isAsleep = false;
+
         setFlag(Flags.RB0Interrupt, 1);
         // Interrupt when enable
         if(getFlag(Flags.GlobalInterruptEnable) == 1 && getFlag(Flags.RB0InterruptEnable) == 1){
@@ -555,7 +562,7 @@ public class Execute {
     }
 
     public void SLEEP() {
-
+        isAsleep = true;
     }
 
     // Test
