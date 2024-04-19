@@ -87,7 +87,7 @@ public class GUI extends JFrame {
 
                         // Tabellenzeilen füllen
                         for (String l : lines) {
-                            model.addRow(new Object[]{false, l}); // Breakpoint standardmäßig auf false setzen
+                            model.addRow(new Object[]{false, l}); // Breakpoints are initially false
                         }
 
                         table3.setModel(model);

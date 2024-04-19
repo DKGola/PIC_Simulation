@@ -50,6 +50,7 @@ public class Program {
         // load instructions in simulator
         simulator = new Simulator(instructions);
         gui.setLines(lines);
+        Program.gui.updateGUI(Program.simulator);
     }
 
     public static void runProgram() {
