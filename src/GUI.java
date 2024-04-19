@@ -98,7 +98,6 @@ public class GUI extends JFrame {
                         columnModel.getColumn(0).setCellRenderer(new CheckBoxRenderer());
                         columnModel.getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox()));
 
-
                         reader.close();
                     } catch (Exception ex) {
                         ex.printStackTrace();
