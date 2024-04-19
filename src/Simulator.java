@@ -11,12 +11,11 @@ public class Simulator {
 
     public Simulator(int[] instructions) {
         rom = instructions;
-        wRegister = 0;
         ram = new int[2][128];
-        programCounter = 0;
         powerOnReset();
         execute = new Execute(ram);
         decoder = new Decoder(ram, execute);
+        execute.interrupts.simulator = this;
     }
 
     /**
@@ -31,12 +30,16 @@ public class Simulator {
             }
             System.out.printf("%x, ", ram[0][i]);
         }
-        programCounter++;
-        ram[0][2] = programCounter & 0b1111_1111;
-        ram[1][2] = programCounter & 0b1111_1111;
-        decoder.decode(rom[programCounter - 1]);
-        execute.updateTMR0();
-        execute.CheckInterrupt();
+        if (execute.isAsleep == false)
+        {
+            programCounter++;
+            ram[0][2] = programCounter & 0b1111_1111;
+            ram[1][2] = programCounter & 0b1111_1111;
+            decoder.decode(rom[programCounter - 1]);
+        }
+        execute.interrupts.CheckInterrupt();
+        // update GUI after instruction was executed
+        Program.gui.updateGUI(Program.simulator);
     }
 
     public void powerOnReset(){
@@ -50,5 +53,26 @@ public class Simulator {
             }
         }
         wRegister = 0;
+        programCounter = 0;
+    }
+
+    public int getPCL() {
+        return ram[0][2];       // PCL is in RAM[0][2] and RAM[1][2]
+    }
+
+    public int getPCLath() {
+        return ram[0][10];      // PCLATH is in RAM[0][A] and RAM[1][A]
+    }
+
+    public int getCarry() {
+        return execute.getFlag(Flags.Carry);
+    }
+
+    public int getDigitCarry() {
+        return execute.getFlag(Flags.DigitCarry);
+    }
+
+    public int getZero() {
+        return execute.getFlag(Flags.Zero);
     }
 }
