@@ -2,25 +2,19 @@ package src;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
-
 /**
  * executes a specific command
  */
 public class Execute {
     private int[][] ram;
-    private Stack<Integer> returnStack = new Stack<Integer>();
-    private int prescalerCount = 0;
-    private int previousInput;
-    private int previousRB7ToRB4;
-    private int previousRB0;
+    public PICStack returnStack = new PICStack();
     public boolean isAsleep = false;
+
+    public InterruHandler interrupts;
 
     public Execute(int[][] ram) {
         this.ram = ram;
-        previousInput = ram[0][5] & 0b0001_0000;
-        previousRB0 = ram[0][6] & 1;
-        previousRB7ToRB4 = ram[0][6] & 0b1111_0000;
+        interrupts = new InterruHandler(this, ram);
     }
 
     private void write(int file, int value) {
@@ -30,7 +24,7 @@ public class Execute {
         }
 
         if (file == 1) {
-            prescalerCount = 0;
+            interrupts.SetPrescaler(0);
         }
 
         List<Integer> shared = Arrays.asList(2, 3, 4, 10, 11);
@@ -62,10 +56,6 @@ public class Execute {
     }
 
     public void setFlag(Flags flag, int value) {
-        if(flag == Flags.PrescalerAssignment){
-            prescalerCount = 0;
-        }
-
         if (value == 0) {
             write(flag.register, ram[flag.bank][flag.register] & ~(1 << flag.bit));
         } else if (value == 1) {
@@ -98,98 +88,6 @@ public class Execute {
             setFlag(Flags.DigitCarry, 1);
         } else {
             setFlag(Flags.DigitCarry, 0);
-        }
-    }
-
-    private void updateTMR0() {
-        // Option reg T0CS
-        if (getFlag(Flags.TimerClockSource) == 0) {
-            incrementTRM0();
-        } else {
-            int RA4 = ram[0][5] & 0b0001_0000;
-            if (getFlag(Flags.TimerSourceEdge) == 0) {
-                // low-to-high
-                if (previousInput < RA4) {
-                    incrementTRM0();
-                }
-            } else {
-                // high-to-low
-                if (previousInput > RA4) {
-                    incrementTRM0();
-                }
-            }
-            previousInput = RA4;
-        }
-    }
-
-    private void incrementTRM0() {
-        if (getFlag(Flags.PrescalerAssignment) == 0) {
-            prescalerCount++;
-            if (prescalerCount == (int) Math.pow(2, (ram[1][1] & 0b0000_0111) + 1)) {
-                ram[0][1]++;
-                prescalerCount = 0;
-            }
-        } else {
-            ram[0][1]++;
-            prescalerCount = 0;
-        }
-
-        // Timer Overflow
-        if (ram[0][1] > 255) {
-            setFlag(Flags.TImerOverflow, 1);
-            setFlag(Flags.Zero, 1);
-            if (getFlag(Flags.TimerInterrupt) == 1 && getFlag(Flags.GlobalInterruptEnable) == 0) {
-                // Timer Interrupt
-                setFlag(Flags.GlobalInterruptEnable, 1);
-                returnStack.add(Simulator.programCounter);
-                Simulator.programCounter = 4;
-            }
-            ram[0][1] = 0;
-        }
-    }
-
-    public void CheckInterrupt(){
-        // check timer interrupt
-        updateTMR0();
-
-        // RB0 bit
-        int RB0 = ram[0][6] & 1;
-        // low to high
-        if(getFlag(Flags.InterruptEdgeSelect) == 1){
-            if(RB0 > previousRB0){
-                RB0Interrupt();
-            }
-            
-        // Hight to low
-        }else{
-            if (RB0 > previousRB0){
-                RB0Interrupt();
-            }
-        }
-        previousRB0 = RB0;
-
-        // RB Port Change Interrupt
-        int RB7ToRB4 = ram[0][6] & 0b11110000; 
-        if(RB7ToRB4 != previousRB7ToRB4){
-            setFlag(Flags.RBInterrupt, 1);
-            if(getFlag(Flags.RBPortChangeEnable) == 1 && getFlag(Flags.GlobalInterruptEnable) == 1){
-                setFlag(Flags.GlobalInterruptEnable, 0);
-                returnStack.add(Simulator.programCounter);
-                Simulator.programCounter = 4;
-            }
-        }
-        previousRB7ToRB4 = RB7ToRB4;
-    }
-
-    private void RB0Interrupt(){
-        isAsleep = false;
-
-        setFlag(Flags.RB0Interrupt, 1);
-        // Interrupt when enable
-        if(getFlag(Flags.GlobalInterruptEnable) == 1 && getFlag(Flags.RB0InterruptEnable) == 1){
-            setFlag(Flags.GlobalInterruptEnable, 0);
-            returnStack.add(Simulator.programCounter);
-            Simulator.programCounter = 4;
         }
     }
 
@@ -287,7 +185,7 @@ public class Execute {
         testResultZero(result);
         if (result == 0) {
             Simulator.programCounter++;
-            updateTMR0();
+            interrupts.updateTMR0();
         }
         write(file, result);
     }
@@ -315,7 +213,7 @@ public class Execute {
         testResultZero(result);
         if (result == 0) {
             Simulator.programCounter++;
-            updateTMR0();
+            interrupts.updateTMR0();
         }
         write(file, result, destinationBit);
     }
@@ -482,7 +380,7 @@ public class Execute {
         int result = ram[getRP0()][file] & (1 << bit);
         if (result == 0) {
             Simulator.programCounter++;
-            updateTMR0();
+            interrupts.updateTMR0();
         }
     }
 
@@ -495,7 +393,7 @@ public class Execute {
         int result = ram[getRP0()][file] & (1 << bit);
         if (result != 0) {
             Simulator.programCounter++;
-            updateTMR0();
+            interrupts.updateTMR0();
         }
     }
 
@@ -522,17 +420,17 @@ public class Execute {
     }
 
     public void CALL(int literal) {
-        returnStack.add(Simulator.programCounter);
+        returnStack.push(Simulator.programCounter);
         GOTO(literal);
     }
 
     public void CLRWDT() {
-
+        interrupts.clearWatchdog();
     }
 
     public void GOTO(int literal) {
         Simulator.programCounter = literal + ((ram[0][10] & 0b0001_1000) << 8);
-        updateTMR0();
+        interrupts.updateTMR0();
     }
 
     public void IORLW(int literal) {
@@ -553,12 +451,12 @@ public class Execute {
     public void RETLW(int literal) {
         Simulator.programCounter = returnStack.pop();
         Simulator.wRegister = literal;
-        updateTMR0();
+        interrupts.updateTMR0();
     }
 
     public void RETURN() {
         Simulator.programCounter = returnStack.pop();
-        updateTMR0();
+        interrupts.updateTMR0();
     }
 
     public void SLEEP() {
