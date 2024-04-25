@@ -29,7 +29,6 @@ public class Program {
     }
 
     private void loadInstructions(File file) throws IOException {
-
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String input;
         StringBuilder readFile = new StringBuilder();
