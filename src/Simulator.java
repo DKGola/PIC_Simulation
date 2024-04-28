@@ -3,6 +3,7 @@ package src;
 public class Simulator {
     private int[] rom;
     private int[][] ram;
+    private int[] EEPRom;
     public static int programCounter;
     public static int wRegister;
     private Decoder decoder;
@@ -12,6 +13,7 @@ public class Simulator {
     public Simulator(int[] instructions) {
         rom = instructions;
         ram = new int[2][128];
+        EEPRom = new int[64];
         powerOnReset();
         execute = new Execute(ram);
         decoder = new Decoder(ram, execute);
@@ -38,6 +40,17 @@ public class Simulator {
             decoder.decode(rom[programCounter - 1]);
         }
         execute.interrupts.CheckInterrupt();
+        // Write to EEPRom
+        if(execute.getFlag(Flags.WriteEnableBit) == 1 && execute.getFlag(Flags.WriteControlBit) == 1){
+            EEPRom[ram[0][9]] = ram[0][8];
+            execute.setFlag(Flags.WriteControlBit, 0);
+        }
+        // Read from EEPRom
+        if(execute.getFlag(Flags.ReadControlBit) == 1){
+            ram[0][8] = EEPRom[ram[0][9]];
+            execute.setFlag(Flags.ReadControlBit, 0);
+        }
+
         // update GUI after instruction was executed
         Program.gui.updateGUI(Program.simulator);
         Program.gui.setLine();

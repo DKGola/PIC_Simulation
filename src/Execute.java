@@ -23,9 +23,7 @@ public class Execute {
             return;
         }
 
-        if (file == 1) {
-            interrupts.SetPrescaler(0);
-        }
+        interrupts.CheckPrescalerReset(file, value);
 
         List<Integer> shared = Arrays.asList(2, 3, 4, 10, 11);
         testPCL(file, value);
@@ -51,7 +49,7 @@ public class Execute {
         }
     }
 
-    private int getRP0() {
+    public int getRP0() {
         return (ram[0][3] & 0b0010_0000) >> 5;
     }
 
@@ -463,7 +461,6 @@ public class Execute {
         isAsleep = true;
     }
 
-    // Test
     public void SUBLW(int literal) {
         int result = literal - Simulator.wRegister;
         int digitResult = (literal & 0xF) - (Simulator.wRegister & 0xF);
