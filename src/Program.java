@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Program {
     public static boolean running;
@@ -29,7 +30,6 @@ public class Program {
     }
 
     private void loadInstructions(File file) throws IOException {
-
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String input;
         StringBuilder readFile = new StringBuilder();
@@ -49,6 +49,7 @@ public class Program {
         // load instructions in simulator
         simulator = new Simulator(instructions);
         gui.setLines(lines);
+        Program.gui.updateGUI(Program.simulator);
     }
 
     public static void runProgram() {
@@ -63,7 +64,7 @@ public class Program {
             simulator.nextInstruction();
             // 1000 milliseconds delay after every instruction
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }

@@ -9,7 +9,9 @@ public enum Flags {
     RBPortChangeEnable(3, 10, 0), RBInterrupt(0, 10, 0),
     // Option register 1 bank 1
     TimerClockSource(5, 1,1), TimerSourceEdge(4,1,1), PrescalerAssignment(3, 1, 1),
-    InterruptEdgeSelect(6, 1, 1);
+    InterruptEdgeSelect(6, 1, 1),
+    // EECON 1 register 8  bank 1
+    WriteEnableBit(2, 8, 1), WriteControlBit(1, 8, 1), ReadControlBit(0, 8, 1);
 
     public final int bit;
     public final int register;
