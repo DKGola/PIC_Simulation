@@ -78,11 +78,7 @@ public class Simulator {
     }
 
     public void updateRuntime() {
-        if (false) {
-            runtime += (2 * ((double)4_000_000 / frequency));
-        } else {
             runtime += ((double)4_000_000 / frequency);
-        }
     }
 
     public int getPCL() {
@@ -111,6 +107,10 @@ public class Simulator {
 
     public int getFrequency() {
         return frequency;
+    }
+
+    public void setFrequency(int frequency) {
+        this.frequency = frequency;
     }
 
 }

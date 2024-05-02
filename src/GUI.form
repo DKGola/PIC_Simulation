@@ -59,13 +59,13 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="72a61" class="javax.swing.JSlider" binding="FrequencySlider">
+              <component id="72a61" class="javax.swing.JSlider" binding="frequencySlider">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>
-              <component id="b08da" class="javax.swing.JLabel" binding="FrequencyLabel">
+              <component id="b08da" class="javax.swing.JLabel" binding="frequencyLabel">
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -83,7 +83,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="baba9" class="javax.swing.JLabel" binding="RuntimeLabel">
+              <component id="baba9" class="javax.swing.JLabel" binding="runtimeLabel">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>

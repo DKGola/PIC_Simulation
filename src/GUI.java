@@ -1,13 +1,12 @@
 package src;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -16,7 +15,7 @@ import java.util.List;
 
 public class GUI extends JFrame {
 
-    private JSlider FrequencySlider;
+    private JSlider frequencySlider;
     private JButton runButton;
     private JButton stopButton;
     private JButton stepButton;
@@ -38,8 +37,8 @@ public class GUI extends JFrame {
     private JLabel digitCarryLabel;
     private JLabel zeroLabel;
     private JTable ioTable;
-    private JLabel RuntimeLabel;
-    private JLabel FrequencyLabel;
+    private JLabel runtimeLabel;
+    private JLabel frequencyLabel;
     private Simulator simulator;
     private File selectedFile;
     private int[] lines;
@@ -157,6 +156,22 @@ public class GUI extends JFrame {
                     }
                     Program.gui.updateGUI(Program.simulator);
                 }
+            }
+        });
+        frequencySlider.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                frequencySlider.setMinimum(1_000_000);
+                frequencySlider.setMaximum((10_000_000));
+            }
+
+        });
+        frequencySlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Program.simulator.setFrequency(frequencySlider.getValue());
+
             }
         });
     }
@@ -299,13 +314,17 @@ public class GUI extends JFrame {
         // update ioTable
         updateIOTable();
         // update runtime and frequency label
-        RuntimeLabel.setText("Runtime: " + String.format("%.2f µs", Program.simulator.getRuntime()));
-        FrequencyLabel.setText(String.format("%d Hz", Program.simulator.getFrequency()));
+        runtimeLabel.setText("Runtime: " + String.format("%.2f µs", Program.simulator.getRuntime()));
+        frequencyLabel.setText(String.format("%d Hz", Program.simulator.getFrequency()));
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new GUI().setVisible(true));
     }
+
+
+
+
 
     public void setLines(int[] lines) {
         this.lines = lines;
