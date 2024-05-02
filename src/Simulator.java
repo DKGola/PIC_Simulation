@@ -3,6 +3,8 @@ package src;
 public class Simulator {
     private int[] rom;
     private int[][] ram;
+    private double frequency;      // in MHz, 4 MHz = 1 µs
+    private double runtime;        // in microseconds
     private int[] EEPRom;
     public static int programCounter;
     public static int wRegister;
@@ -14,6 +16,8 @@ public class Simulator {
         rom = instructions;
         ram = new int[2][128];
         EEPRom = new int[64];
+        frequency = 4;
+        runtime = 0;
         powerOnReset();
         execute = new Execute(ram);
         decoder = new Decoder(ram, execute);
@@ -51,6 +55,8 @@ public class Simulator {
             execute.setFlag(Flags.ReadControlBit, 0);
         }
 
+        // update runtime
+        updateRuntime();
         // update GUI after instruction was executed
         Program.gui.updateGUI(Program.simulator);
         Program.gui.setLine();
@@ -68,6 +74,15 @@ public class Simulator {
         }
         wRegister = 0;
         programCounter = 0;
+        runtime = 0;
+    }
+
+    public void updateRuntime() {
+        if (false) {
+            runtime += (2 * (4 / frequency));
+        } else {
+            runtime += (4 / frequency);
+        }
     }
 
     public int getPCL() {
@@ -89,4 +104,9 @@ public class Simulator {
     public int getZero() {
         return execute.getFlag(Flags.Zero);
     }
+    public int[][] getRam() {return ram;}
+    public double getRuntime() {
+        return runtime;
+    }
+
 }

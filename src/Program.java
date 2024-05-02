@@ -10,14 +10,17 @@ public class Program {
     public static boolean running;
     public static Simulator simulator;
     public static GUI gui;
+    private static boolean bp;
 
     public static void main(String[] args) throws IOException {
         Program program = new Program();
         program.start();
+
     }
 
     public void start() throws IOException {
         gui = new GUI();
+        bp = true;
         simulator = new Simulator(new int[1024]);
 
         File selectedFile = gui.waitForSelectedFile();
@@ -61,6 +64,14 @@ public class Program {
         // HIER RESET EINBAUEN
 
         while (running) {
+            // stops program if breakpoint is set
+            if (gui.hasBreakpoint() && bp) {
+                running = false;
+                bp = false;
+                continue;
+            } else {
+                bp = true;
+            }
             simulator.nextInstruction();
             // 1000 milliseconds delay after every instruction
             try {
