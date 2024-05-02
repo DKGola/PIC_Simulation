@@ -13,11 +13,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class GUI extends JFrame {
 
-    private JSlider slider1;
+    private JSlider FrequencySlider;
     private JButton runButton;
     private JButton stopButton;
     private JButton stepButton;
@@ -40,6 +39,7 @@ public class GUI extends JFrame {
     private JLabel zeroLabel;
     private JTable ioTable;
     private JLabel RuntimeLabel;
+    private JLabel FrequencyLabel;
     private Simulator simulator;
     private File selectedFile;
     private int[] lines;
@@ -298,8 +298,9 @@ public class GUI extends JFrame {
         zeroLabel.setText("Zero: " + String.format("%d", simulator.getZero()));
         // update ioTable
         updateIOTable();
-        // update runtime label
+        // update runtime and frequency label
         RuntimeLabel.setText("Runtime: " + String.format("%.2f µs", Program.simulator.getRuntime()));
+        FrequencyLabel.setText(String.format("%d Hz", Program.simulator.getFrequency()));
     }
 
     public static void main(String[] args) {

@@ -3,7 +3,7 @@ package src;
 public class Simulator {
     private int[] rom;
     private int[][] ram;
-    private double frequency;      // in MHz, 4 MHz = 1 µs
+    private int frequency;      // in Hz, 4000000 Hz = 1 µs
     private double runtime;        // in microseconds
     private int[] EEPRom;
     public static int programCounter;
@@ -16,7 +16,7 @@ public class Simulator {
         rom = instructions;
         ram = new int[2][128];
         EEPRom = new int[64];
-        frequency = 4;
+        frequency = 4_000_000;
         runtime = 0;
         powerOnReset();
         execute = new Execute(ram);
@@ -79,9 +79,9 @@ public class Simulator {
 
     public void updateRuntime() {
         if (false) {
-            runtime += (2 * (4 / frequency));
+            runtime += (2 * ((double)4_000_000 / frequency));
         } else {
-            runtime += (4 / frequency);
+            runtime += ((double)4_000_000 / frequency);
         }
     }
 
@@ -107,6 +107,10 @@ public class Simulator {
     public int[][] getRam() {return ram;}
     public double getRuntime() {
         return runtime;
+    }
+
+    public int getFrequency() {
+        return frequency;
     }
 
 }
