@@ -1,5 +1,7 @@
 package src;
 
+import java.util.Arrays;
+
 public class Simulator {
     private int[] rom;
     private int[][] ram;
@@ -9,6 +11,11 @@ public class Simulator {
     public static int programCounter;
     public static int wRegister;
     private Decoder decoder;
+
+    public Execute getExecute() {
+        return execute;
+    }
+
     private Execute execute;
 
 
@@ -75,6 +82,9 @@ public class Simulator {
         wRegister = 0;
         programCounter = 0;
         runtime = 0;
+        if (execute != null) {
+            execute.returnStack.resetStack();
+        }
     }
 
     public void updateRuntime() {
