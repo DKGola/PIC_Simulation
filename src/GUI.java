@@ -1,23 +1,22 @@
 package src;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class GUI extends JFrame {
 
-    private JSlider slider1;
+    private JSlider frequencySlider;
     private JButton runButton;
     private JButton stopButton;
     private JButton stepButton;
@@ -39,8 +38,11 @@ public class GUI extends JFrame {
     private JLabel digitCarryLabel;
     private JLabel zeroLabel;
     private JTable ioTable;
-    private JLabel RuntimeLabel;
+    private JLabel runtimeLabel;
+    private JLabel frequencyLabel;
+    private JTable stackTable;
     private Simulator simulator;
+    private Execute execute;
     private File selectedFile;
     private int[] lines;
     private int line;
@@ -132,6 +134,7 @@ public class GUI extends JFrame {
         resetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                Program.running = false;
                 Program.simulator.powerOnReset();
                 Program.gui.updateGUI(Program.simulator);
             }
@@ -159,25 +162,65 @@ public class GUI extends JFrame {
                 }
             }
         });
+        frequencySlider.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                frequencySlider.setMinimum(32_768);     // minimum frequency
+                frequencySlider.setMaximum((20_000_000));   // maximum frequency
+            }
+
+        });
+        frequencySlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Program.simulator.setFrequency(frequencySlider.getValue());
+                // update runtime and frequency label
+                runtimeLabel.setText("Runtime: " + String.format("%.2f µs", Program.simulator.getRuntime()));
+                NumberFormat numberFormat = NumberFormat.getInstance();
+                numberFormat.setGroupingUsed(true);
+                String formattedFrequency = numberFormat.format(Program.simulator.getFrequency());
+                frequencyLabel.setText(String.format("%s Hz", formattedFrequency));
+            }
+        });
     }
 
     private void togglePortBitInRam(int port, int column) {
         int[][] ram = Program.simulator.getRam();
         int pinValue = (port == 0) ? ram[0][5] : ram[0][6];
-        int mask = 1 << (column - 1); // select bit depending on cell
+        int mask = 1 << (8 - column); // select bit depending on cell
         ram[0][5 + port] = pinValue ^ mask; // toggle port (0 -> 1; 1 -> 0)
+        updateIOTable();
+    }
+
+    public void updateStackTable() {
+        String[] columnNames = {"Index", "Value"};
+        int[] stack = Program.simulator.getExecute().returnStack.getStack();
+        Object[][] data = new Object[8][2];  // 8 rows, 2 columns
+        for (int i = 0; i < 8; i++) {
+            data[i][0] = 7 - i;     // array index 0-7 from bottom to top
+        }
+        for (int i = 0; i < 8; i++) {
+            data[i][1] = stack[7 - i];
+        }
+
+        CustomTableModel ioModel = new CustomTableModel(data, columnNames);
+        stackTable.setModel(ioModel);
+        stackTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        for (int i = 0; i < stackTable.getColumnCount(); i++) {
+            stackTable.getColumnModel().getColumn(i).setPreferredWidth(50);
+        }
     }
 
     public void updateIOTable() {
-        System.out.println("UPDATEIOTABLE AUFGERUFEN");
         updateIoData();
 
-        Object[][] data = new Object[7][9]; // 7 Zeilen, 9 Spalten
-        String[] columnNames = {"7", "6", "5", "4", "3", "2", "1", "0"};
+        Object[][] data = new Object[7][9]; // 7 rows, 9 columns
+        String[] columnNames = {"RB", "7", "6", "5", "4", "3", "2", "1", "0"};
 
         // RA
         data[0][0] = "RA";
-        System.arraycopy(columnNames, 0, data[0], 1, columnNames.length);
+        System.arraycopy(columnNames, 0, data[0], 0, columnNames.length);
         data[1][0] = "Tris A";
         for (int i = 1; i < 9; i++) {
             data[1][i] = ioData[i - 1][0];
@@ -191,7 +234,7 @@ public class GUI extends JFrame {
 
         // RB
         data[4][0] = "RB";
-        System.arraycopy(columnNames, 0, data[4], 1, columnNames.length);
+        System.arraycopy(columnNames, 0, data[4], 0, columnNames.length);
         data[5][0] = "Tris B";
         for (int i = 1; i < 9; i++) {
             data[5][i] = ioData[i + 7][0];
@@ -211,7 +254,6 @@ public class GUI extends JFrame {
 
     public File getSelectedFile() {
         if (selectedFile != null) {
-            System.out.println("get selected file: " + selectedFile.getAbsolutePath());
         }
         return selectedFile;
     }
@@ -235,7 +277,6 @@ public class GUI extends JFrame {
     }
 
     public void highlightCommand(int line) {
-        System.out.println("\nLINE: " + line);
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -280,7 +321,6 @@ public class GUI extends JFrame {
      * @param simulator instance of Simulator
      */
     public void updateGUI(Simulator simulator) {
-        System.out.println("UPDATEGUI AUFGERUFEN");
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(() -> updateGUI(simulator));
             return;
@@ -296,15 +336,25 @@ public class GUI extends JFrame {
         carryLabel.setText("Carry: " + String.format("%d", simulator.getCarry()));
         digitCarryLabel.setText("Digit Carry: " + String.format("%d", simulator.getDigitCarry()));
         zeroLabel.setText("Zero: " + String.format("%d", simulator.getZero()));
+        // update stackTable
+        updateStackTable();
         // update ioTable
         updateIOTable();
-        // update runtime label
-        RuntimeLabel.setText("Runtime: " + String.format("%.2f µs", Program.simulator.getRuntime()));
+        // update runtime and frequency label
+        runtimeLabel.setText("Runtime: " + String.format("%.2f µs", Program.simulator.getRuntime()));
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        numberFormat.setGroupingUsed(true);
+        String formattedFrequency = numberFormat.format(Program.simulator.getFrequency());
+        frequencyLabel.setText(String.format("%s Hz", formattedFrequency));
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new GUI().setVisible(true));
     }
+
+
+
+
 
     public void setLines(int[] lines) {
         this.lines = lines;
@@ -326,8 +376,8 @@ public class GUI extends JFrame {
         initially: TRISA 00011111   TRISB 11111111  PORTA
          */
     public void updateIoData() {
-        System.out.println("UPDATEIODATA AUFGERUFEN");
         int[][] ram = Program.simulator.getRam();
+        // make iodata to string
         String trisAString = String.format("%8s", Integer.toBinaryString(ram[1][5])).replace(' ', '0');
         String trisBString = String.format("%8s", Integer.toBinaryString(ram[1][6])).replace(' ', '0');
         String portAString = String.format("%8s", Integer.toBinaryString(ram[0][5])).replace(' ', '0');
@@ -344,22 +394,6 @@ public class GUI extends JFrame {
             ioData[i][1] = Character.getNumericValue(portBString.charAt(j));   // Port B
         }
 
-        System.out.println("\n\nTris A:");
-        for (int i = 0; i < 8; i++) {
-            System.out.print(ioData[i][0]);
-        }
-        System.out.println("\n\nTris B:");
-        for (int i = 8; i < 16; i++) {
-            System.out.print(ioData[i][0]);
-        }
-        System.out.println("\n\nPort A:");
-        for (int i = 0; i < 8; i++) {
-            System.out.print(ioData[i][1]);
-        }
-        System.out.println("\n\nPort B:");
-        for (int i = 8; i < 16; i++) {
-            System.out.print(ioData[i][1]);
-        }
     }
 }
 

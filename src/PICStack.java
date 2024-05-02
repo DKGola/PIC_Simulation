@@ -1,5 +1,7 @@
 package src;
 
+import java.util.Arrays;
+
 public class PICStack {
     private int[] stack = new int[8];
     private int stackPointer = 0;
@@ -16,5 +18,13 @@ public class PICStack {
             stackPointer = 7;
         }
         return stack[stackPointer];
+    }
+
+    public int[] getStack() {
+        return stack;
+    }
+
+    public void resetStack() {
+        Arrays.fill(stack, 0);
     }
 }
