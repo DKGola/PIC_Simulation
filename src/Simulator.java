@@ -21,7 +21,6 @@ public class Simulator {
         powerOnReset();
         execute = new Execute(ram);
         decoder = new Decoder(ram, execute);
-        execute.interrupts.simulator = this;
     }
 
     /**

@@ -9,7 +9,6 @@ public class InterruHandler {
     private Execute execute;
     private int[][] ram;
     private boolean watchdogEnable;
-    public Simulator simulator;
 
     public InterruHandler(Execute execute, int[][] ram){
         this.ram = ram;
@@ -136,7 +135,7 @@ public class InterruHandler {
             if(execute.isAsleep == true){
                 execute.isAsleep = false;
             }else{
-                simulator.powerOnReset();
+                Program.simulator.powerOnReset();
             }
             watchdogCount = 0;
         }
