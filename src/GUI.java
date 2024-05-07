@@ -42,6 +42,12 @@ public class GUI extends JFrame {
     private JLabel frequencyLabel;
     private JTable stackTable;
     private JButton sfrResetButtonButton;
+    private JButton a4MHzButton;
+    private JRadioButton a32768HzRadioButton;
+    private JRadioButton a500KHzRadioButton;
+    private JRadioButton a1MHzRadioButton;
+    private JRadioButton a20MHzRadioButton;
+    private JRadioButton a4MHzRadioButton;
     private Simulator simulator;
     private Execute execute;
     private File selectedFile;
@@ -188,6 +194,37 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Program.simulator.powerOnReset();
                 Program.gui.updateGUI(Program.simulator);
+            }
+        });
+
+        a32768HzRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frequencySlider.setValue(32_768);
+            }
+        });
+        a500KHzRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frequencySlider.setValue(500_000);
+            }
+        });
+        a1MHzRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frequencySlider.setValue(1_000_000);
+            }
+        });
+        a4MHzRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frequencySlider.setValue(4_000_000);
+            }
+        });
+        a20MHzRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frequencySlider.setValue(20_000_000);
             }
         });
     }
