@@ -41,6 +41,7 @@ public class GUI extends JFrame {
     private JLabel runtimeLabel;
     private JLabel frequencyLabel;
     private JTable stackTable;
+    private JButton sfrResetButtonButton;
     private Simulator simulator;
     private Execute execute;
     private File selectedFile;
@@ -169,7 +170,6 @@ public class GUI extends JFrame {
                 frequencySlider.setMinimum(32_768);     // minimum frequency
                 frequencySlider.setMaximum((20_000_000));   // maximum frequency
             }
-
         });
         frequencySlider.addChangeListener(new ChangeListener() {
             @Override
@@ -181,6 +181,13 @@ public class GUI extends JFrame {
                 numberFormat.setGroupingUsed(true);
                 String formattedFrequency = numberFormat.format(Program.simulator.getFrequency());
                 frequencyLabel.setText(String.format("%s Hz", formattedFrequency));
+            }
+        });
+        sfrResetButtonButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Program.simulator.powerOnReset();
+                Program.gui.updateGUI(Program.simulator);
             }
         });
     }
