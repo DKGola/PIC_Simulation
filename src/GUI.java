@@ -26,8 +26,8 @@ public class GUI extends JFrame {
     private JTextArea consoleTextArea;
     private JButton fileButton;
     private JButton helpButton;
-    private JTable table1;
-    private JTable table2;
+    private JTable gprTable;
+    private JTable sfrTable;
     private JPanel mainPanel;
     private JTable table3;
     private JLabel wRegisterLabel;
@@ -193,6 +193,58 @@ public class GUI extends JFrame {
         updateIOTable();
     }
 
+    public void updateGprTable()
+    {
+        int[][] ram = Program.simulator.getRam();
+        String[] columnNames = {"File Address", "Bank 0", "Bank 1"};
+        Object[][] data = new Object[36][3];    // 12 rows, 3 columns
+        // file address
+        for (int i = 12; i < 48; i++) {     // gpr goes from 0Ch (12) to 2Fh (47)
+            data[i - 12][0] = String.format("%02Xh", i);
+        }
+        // bank 0
+        for (int i = 12; i < 48; i++) {
+            data[i - 12][1] = String.format("%02Xh", ram[0][i]);
+        }
+        // bank 1
+        for (int i = 12; i < 48; i++) {
+            data[i - 12][2] = String.format("%02Xh", ram[1][i]);
+        }
+
+        CustomTableModel gprModel = new CustomTableModel(data, columnNames);
+        gprTable.setModel(gprModel);
+        gprTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        for (int i = 0; i < gprTable.getColumnCount(); i++) {
+            gprTable.getColumnModel().getColumn(i).setPreferredWidth(50);
+        }
+    }
+
+    public void updateSfrTable()
+    {
+        int[][] ram = Program.simulator.getRam();
+        String[] columnNames = {"File Address", "Bank 0", "Bank 1"};
+        Object[][] data = new Object[12][3];    // 12 rows, 3 columns
+        // file address
+        for (int i = 0; i < 12; i++) {
+            data[i][0] = String.format("%02Xh", i);
+        }
+        // bank 0
+        for (int i = 0; i < 12; i++) {
+            data[i][1] = String.format("%02Xh", ram[0][i]);
+        }
+        // bank 1
+        for (int i = 0; i < 12; i++) {
+            data[i][2] = String.format("%02Xh", ram[1][i]);
+        }
+
+        CustomTableModel sfrModel = new CustomTableModel(data, columnNames);
+        sfrTable.setModel(sfrModel);
+        sfrTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        for (int i = 0; i < sfrTable.getColumnCount(); i++) {
+            sfrTable.getColumnModel().getColumn(i).setPreferredWidth(50);
+        }
+    }
+
     public void updateStackTable() {
         String[] columnNames = {"Index", "Value"};
         int[] stack = Program.simulator.getExecute().returnStack.getStack();
@@ -336,6 +388,10 @@ public class GUI extends JFrame {
         carryLabel.setText("Carry: " + String.format("%d", simulator.getCarry()));
         digitCarryLabel.setText("Digit Carry: " + String.format("%d", simulator.getDigitCarry()));
         zeroLabel.setText("Zero: " + String.format("%d", simulator.getZero()));
+        // update general purpose register table
+        updateGprTable();
+        // update special function register table
+        updateSfrTable();
         // update stackTable
         updateStackTable();
         // update ioTable
