@@ -61,6 +61,7 @@ public class GUI extends JFrame {
         setVisible(true);
         setContentPane(mainPanel);
         ioData = new int[16][2];
+        a4MHzRadioButton.setSelected(true);
 
         fileButton.addActionListener(new ActionListener() {
             @Override
@@ -241,18 +242,22 @@ public class GUI extends JFrame {
     {
         int[][] ram = Program.simulator.getRam();
         String[] columnNames = {"File Address", "Bank 0", "Bank 1"};
-        Object[][] data = new Object[36][3];    // 12 rows, 3 columns
+        Object[][] data = new Object[37][3];    // 12 rows, 3 columns
+        // header
+        for (int i = 0; i < 3; i++) {
+            data[0][i] = columnNames[i];
+        }
         // file address
         for (int i = 12; i < 48; i++) {     // gpr goes from 0Ch (12) to 2Fh (47)
-            data[i - 12][0] = String.format("%02Xh", i);
+            data[i - 11][0] = String.format("%02Xh", i);
         }
         // bank 0
         for (int i = 12; i < 48; i++) {
-            data[i - 12][1] = String.format("%02Xh", ram[0][i]);
+            data[i - 11][1] = String.format("%02Xh", ram[0][i]);
         }
         // bank 1
         for (int i = 12; i < 48; i++) {
-            data[i - 12][2] = String.format("%02Xh", ram[1][i]);
+            data[i - 11][2] = String.format("%02Xh", ram[1][i]);
         }
 
         CustomTableModel gprModel = new CustomTableModel(data, columnNames);
@@ -267,18 +272,22 @@ public class GUI extends JFrame {
     {
         int[][] ram = Program.simulator.getRam();
         String[] columnNames = {"File Address", "Bank 0", "Bank 1"};
-        Object[][] data = new Object[12][3];    // 12 rows, 3 columns
+        Object[][] data = new Object[13][3];    // 12 rows, 3 columns
+        // header
+        for (int i = 0; i < 3; i++) {
+            data[0][i] = columnNames[i];
+        }
         // file address
         for (int i = 0; i < 12; i++) {
-            data[i][0] = String.format("%02Xh", i);
+            data[i + 1][0] = String.format("%02Xh", i);
         }
         // bank 0
         for (int i = 0; i < 12; i++) {
-            data[i][1] = String.format("%02Xh", ram[0][i]);
+            data[i + 1][1] = String.format("%02Xh", ram[0][i]);
         }
         // bank 1
         for (int i = 0; i < 12; i++) {
-            data[i][2] = String.format("%02Xh", ram[1][i]);
+            data[i + 1][2] = String.format("%02Xh", ram[1][i]);
         }
 
         CustomTableModel sfrModel = new CustomTableModel(data, columnNames);
@@ -292,12 +301,16 @@ public class GUI extends JFrame {
     public void updateStackTable() {
         String[] columnNames = {"Index", "Value"};
         int[] stack = Program.simulator.getExecute().returnStack.getStack();
-        Object[][] data = new Object[8][2];  // 8 rows, 2 columns
-        for (int i = 0; i < 8; i++) {
-            data[i][0] = 7 - i;     // array index 0-7 from bottom to top
+        Object[][] data = new Object[9][2];  // 8 rows, 2 columns
+        // header
+        for (int i = 0; i < 2; i++) {
+            data[0][i] = columnNames[i];
         }
         for (int i = 0; i < 8; i++) {
-            data[i][1] = stack[7 - i];
+            data[i + 1][0] = 7 - i;     // array index 0-7 from bottom to top
+        }
+        for (int i = 0; i < 8; i++) {
+            data[i + 1][1] = stack[7 - i];
         }
 
         CustomTableModel ioModel = new CustomTableModel(data, columnNames);
@@ -319,7 +332,11 @@ public class GUI extends JFrame {
         System.arraycopy(columnNames, 0, data[0], 0, columnNames.length);
         data[1][0] = "Tris A";
         for (int i = 1; i < 9; i++) {
-            data[1][i] = ioData[i - 1][0];
+            if (ioData[i - 1][0] == 1) {
+                data[1][i] = "i";
+            } else {
+                data[1][i] = "o";
+            }
         }
         data[2][0] = "Pin A";
         for (int i = 1; i < 9; i++) {
@@ -333,7 +350,11 @@ public class GUI extends JFrame {
         System.arraycopy(columnNames, 0, data[4], 0, columnNames.length);
         data[5][0] = "Tris B";
         for (int i = 1; i < 9; i++) {
-            data[5][i] = ioData[i + 7][0];
+            if (ioData[i + 7][0] == 1) {
+                data[5][i] = "i";
+            } else {
+                data[5][i] = "o";
+            }
         }
         data[6][0] = "Pin B";
         for (int i = 1; i < 9; i++) {
