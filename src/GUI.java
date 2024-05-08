@@ -193,7 +193,7 @@ public class GUI extends JFrame {
         sfrResetButtonButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Program.simulator.powerOnReset();
+                Program.simulator.softReset();
                 Program.gui.updateGUI(Program.simulator);
             }
         });
@@ -393,6 +393,10 @@ public class GUI extends JFrame {
         this.selectedFile = file;
     }
 
+    /**
+     * highlights the current line in the GUI
+     * @param line line to be highlighted
+     */
     public void highlightCommand(int line) {
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
             @Override
@@ -413,14 +417,6 @@ public class GUI extends JFrame {
     }
 
 
-    /**
-     * highlights the current line in the GUI
-     * @param line line to be highlighted
-     */
-/**    public void highlightCommand(int line) {
-        cell.setBackground(Color.PINK);
-        return cell;
-    } **/
 
     // Checkboxen
     class CheckBoxRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
@@ -428,7 +424,7 @@ public class GUI extends JFrame {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            checkBox.setSelected(value.equals("1"));
+            checkBox.setSelected((Boolean) value); // set checkbox depending on cell value
             return checkBox;
         }
     }

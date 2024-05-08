@@ -155,7 +155,7 @@
               <component id="eb893" class="javax.swing.JTable" binding="table3" default-binding="true">
                 <constraints/>
                 <properties>
-                  <autoResizeMode value="4"/>
+                  <autoResizeMode value="1"/>
                   <cellSelectionEnabled value="false"/>
                   <columnSelectionAllowed value="false"/>
                   <enabled value="true"/>

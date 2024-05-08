@@ -86,6 +86,10 @@ public class Simulator {
         }
     }
 
+    public void softReset() {
+        return;
+    }
+
     public void updateRuntime() {
             runtime += ((double)4_000_000 / frequency);
     }
