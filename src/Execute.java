@@ -6,7 +6,9 @@ import java.util.List;
  * executes a specific command
  */
 public class Execute {
-    private int[][] ram;
+    private final int[][] ram;
+    private int latchPortA;
+    private int latchPortB;
     public PICStack returnStack = new PICStack();
     public boolean isAsleep = false;
 
@@ -18,8 +20,8 @@ public class Execute {
     }
 
     private void write(int file, int value) {
-        // file 7 is not implememnted
-        if(file == 7){
+        // file 7 is not implemented in the microcontroller
+        if(file == 7 || CheckPortsForLatch(file, value)){
             return;
         }
 
@@ -32,6 +34,36 @@ public class Execute {
             ram[1][file] = value;
         } else {
             ram[getRP0()][file] = value;
+        }
+    }
+
+    private boolean CheckPortsForLatch(int file, int value){
+        // Write to PortA or PortB
+        if((file == 0x05 || file == 0x06) && getRP0() == 0){
+            for(int i = 0; i < 8; i++) {
+                if ((ram[1][file] & (1 << i)) == 0) {
+                    ram[0][file] = (ram[0][file] & ~(1 << i)) | (value & (1 << i));
+                }
+
+                if(file == 0x05){
+                    latchPortA = (latchPortA & ~(1 << i)) | (value & (1 << i));
+                }else {
+                    latchPortB = (latchPortB & ~(1 << i)) | (value & (1 << i));
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void UpdatePortsWithLatch(){
+        for(int i = 0; i < 8; i++) {
+            if ((ram[1][0x05] & (1 << i)) == 0) {
+                ram[0][0x05] = (ram[0][0x05] & ~(1 << i)) | (latchPortA & (1 << i));
+            }
+            if ((ram[1][0x06] & (1 << i)) == 0) {
+                ram[0][0x06] = (ram[0][0x06] & ~(1 << i)) | (latchPortB & (1 << i));
+            }
         }
     }
 
@@ -186,7 +218,7 @@ public class Execute {
             interrupts.updateTMR0();
             Program.simulator.updateRuntime();
         }
-        write(file, result);
+        write(file, result, destinationBit);
     }
 
     public void INCF(int file, int destinationBit) {
@@ -358,7 +390,7 @@ public class Execute {
         }
 
         int result = ram[getRP0()][file] & ~(1 << bit);
-        write(3, result);
+        write(file, result);
     }
 
     public void BSF(int file, int bit) {
@@ -494,7 +526,6 @@ public class Execute {
     }
 
     public void XORLW(int literal) {
-        int result = Simulator.wRegister ^ literal;
-        Simulator.wRegister = result;
+        Simulator.wRegister = Simulator.wRegister ^ literal;
     }
 }

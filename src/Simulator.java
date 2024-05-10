@@ -34,15 +34,7 @@ public class Simulator {
      * reads next instruction and gives it to the decoder
      */
     public void nextInstruction() {
-        System.out.println("\n");
-        System.out.printf("W %x\n", wRegister);
-        for(int i = 0; i < ram[0].length; i++){
-            if(i % 8 == 0){
-                System.out.println();
-            }
-            System.out.printf("%x, ", ram[0][i]);
-        }
-        if (!execute.isAsleep)
+        if (execute.isAsleep == false)
         {
             programCounter++;
             ram[0][2] = programCounter & 0b1111_1111;
@@ -50,6 +42,18 @@ public class Simulator {
             decoder.decode(rom[programCounter - 1]);
         }
         execute.interrupts.CheckInterrupt();
+
+        checkEEPRomReadWrite();
+
+        execute.UpdatePortsWithLatch();
+
+        updateRuntime();
+
+        Program.gui.updateGUI(Program.simulator);
+        Program.gui.setLine();
+    }
+
+    private void checkEEPRomReadWrite(){
         // Write to EEPRom
         if(execute.getFlag(Flags.WriteEnableBit) == 1 && execute.getFlag(Flags.WriteControlBit) == 1){
             EEPRom[ram[0][9]] = ram[0][8];
@@ -84,10 +88,6 @@ public class Simulator {
         if (execute != null) {
             execute.returnStack.resetStack();
         }
-    }
-
-    public void softReset() {
-        return;
     }
 
     public void updateRuntime() {

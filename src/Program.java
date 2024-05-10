@@ -15,7 +15,6 @@ public class Program {
     public static void main(String[] args) throws IOException {
         Program program = new Program();
         program.start();
-
     }
 
     public void start() throws IOException {

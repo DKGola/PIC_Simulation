@@ -17,6 +17,7 @@ public class InterruHandler {
         previousRB0 = ram[0][6] & 1;
         previousRB7ToRB4 = ram[0][6] & 0b1111_0000;
         watchdogEnable = false;
+        this.execute = execute;
     }
 
     public void updateTMR0() {
