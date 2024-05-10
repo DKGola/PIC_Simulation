@@ -2,17 +2,17 @@ package src;
 
 public class InterruHandler {
     private int prescalerCount = 0;
-    private float watchdogCount;
+    private double watchdogCount;
     private int previousInput;
     private int previousRB7ToRB4;
     private int previousRB0;
-    private Execute execute;
-    private int[][] ram;
-    private boolean watchdogEnable;
+    private final Execute execute;
+    private final int[][] ram;
+    private final boolean watchdogEnable;
+    public Simulator simulator;
 
     public InterruHandler(Execute execute, int[][] ram){
         this.ram = ram;
-        this.execute = execute;
         previousInput = ram[0][5] & 0b0001_0000;
         previousRB0 = ram[0][6] & 1;
         previousRB7ToRB4 = ram[0][6] & 0b1111_0000;
@@ -44,7 +44,7 @@ public class InterruHandler {
 
     private void incrementTRM0() {
         if (execute.getFlag(Flags.PrescalerAssignment) == 0) {
-            if (handlePrescaler() == true) {
+            if (handlePrescaler()) {
                 ram[0][1]++;
             }
         } else {
@@ -89,7 +89,7 @@ public class InterruHandler {
             }
         }else{
             // Hight to low
-            if (RB0 > previousRB0){
+            if (RB0 < previousRB0){
                 RB0Interrupt();
             }
         }
@@ -118,22 +118,22 @@ public class InterruHandler {
     }
 
     private void updateWatchdog() {
-        if(watchdogEnable == false){
+        if(!watchdogEnable){
             return;
         }
 
         // Update WatchdogTimer
         if (execute.getFlag(Flags.PrescalerAssignment) == 1) {
-            if (handlePrescaler() == true) {
-                watchdogCount += 0.001;
+            if (handlePrescaler()) {
+                watchdogCount += (4_000_000.0 / simulator.frequency);
             }
         } else {
-            watchdogCount += 0.001;
+            watchdogCount += (4_000_000.0 / simulator.frequency);
         }
 
         // WatchdogTimer Interrupt
         if(watchdogCount >= 18){
-            if(execute.isAsleep == true){
+            if(execute.isAsleep){
                 execute.isAsleep = false;
             }else{
                 Program.simulator.powerOnReset();

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Program {
     public static boolean running;
@@ -34,12 +33,10 @@ public class Program {
     private void loadInstructions(File file) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String input;
-        StringBuilder readFile = new StringBuilder();
         int[] instructions = new int[1024];
         int[] lines = new int[1024];
         int index = 0;
         while ((input = reader.readLine()) != null) {
-            readFile.append(input).append("\n");
             if (!input.startsWith(" ")) {
                 instructions[index] = Integer.parseInt(input.substring(5, 9), 16);
                 lines[index] = Integer.parseInt(input.substring(20,25));

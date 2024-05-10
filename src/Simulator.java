@@ -1,22 +1,20 @@
 package src;
 
-import java.util.Arrays;
-
 public class Simulator {
-    private int[] rom;
-    private int[][] ram;
-    private int frequency;      // in Hz, 4000000 Hz = 1 µs
+    private final int[] rom;
+    private final int[][] ram;
+    public int frequency;      // in Hz, 4000000 Hz = 1 µs
     private double runtime;        // in microseconds
-    private int[] EEPRom;
+    private final int[] EEPRom;
     public static int programCounter;
     public static int wRegister;
-    private Decoder decoder;
+    private final Decoder decoder;
 
     public Execute getExecute() {
         return execute;
     }
 
-    private Execute execute;
+    private final Execute execute;
 
 
     public Simulator(int[] instructions) {
@@ -28,6 +26,7 @@ public class Simulator {
         powerOnReset();
         execute = new Execute(ram);
         decoder = new Decoder(ram, execute);
+        execute.interrupts.simulator = this;
     }
 
     /**
@@ -78,9 +77,7 @@ public class Simulator {
             {0b1111_1111, 0, 0b0001_1000, 0, 0b001_1111, 0b1111_1111, 0, 0, 0, 0, 0}
         };
         for (int i = 0; i < values.length; i++){
-            for(int j = 0; j < values[i].length; j++){
-                ram[i][j + 1] = values[i][j];
-            }
+            System.arraycopy(values[i], 0, ram[i], 1, values[i].length);
         }
         wRegister = 0;
         programCounter = 0;
@@ -90,8 +87,12 @@ public class Simulator {
         }
     }
 
+    public void softReset(){
+
+    }
+
     public void updateRuntime() {
-            runtime += ((double)4_000_000 / frequency);
+        runtime += ((double)4_000_000 / frequency);
     }
 
     public int getPCL() {
