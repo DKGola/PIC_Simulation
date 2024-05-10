@@ -35,6 +35,10 @@ public class Execute {
         } else {
             ram[getRP0()][file] = value;
         }
+
+        if((file == 0x05 || file == 0x06) && getRP0() != 0){
+            UpdatePortsWithLatch();
+        }
     }
 
     private boolean CheckPortsForLatch(int file, int value){
@@ -53,6 +57,7 @@ public class Execute {
             }
             return true;
         }
+
         return false;
     }
 

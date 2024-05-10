@@ -44,8 +44,6 @@ public class Simulator {
 
         checkEEPRomReadWrite();
 
-        execute.UpdatePortsWithLatch();
-
         updateRuntime();
 
         Program.gui.updateGUI(Program.simulator);
