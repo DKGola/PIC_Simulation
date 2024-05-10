@@ -42,7 +42,7 @@ public class Simulator {
             }
             System.out.printf("%x, ", ram[0][i]);
         }
-        if (execute.isAsleep == false)
+        if (!execute.isAsleep)
         {
             programCounter++;
             ram[0][2] = programCounter & 0b1111_1111;
@@ -84,6 +84,10 @@ public class Simulator {
         if (execute != null) {
             execute.returnStack.resetStack();
         }
+    }
+
+    public void softReset() {
+        return;
     }
 
     public void updateRuntime() {
