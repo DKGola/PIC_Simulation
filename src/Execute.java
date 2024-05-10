@@ -37,23 +37,18 @@ public class Execute {
         }
 
         if((file == 0x05 || file == 0x06) && getRP0() != 0){
-            UpdatePortsWithLatch();
+            UpdatePortsWithLatch(file);
         }
     }
 
     private boolean CheckPortsForLatch(int file, int value){
         // Write to PortA or PortB
         if((file == 0x05 || file == 0x06) && getRP0() == 0){
-            for(int i = 0; i < 8; i++) {
-                if ((ram[1][file] & (1 << i)) == 0) {
-                    ram[0][file] = (ram[0][file] & ~(1 << i)) | (value & (1 << i));
-                }
-
-                if(file == 0x05){
-                    latchPortA = (latchPortA & ~(1 << i)) | (value & (1 << i));
-                }else {
-                    latchPortB = (latchPortB & ~(1 << i)) | (value & (1 << i));
-                }
+            ram[0][file] = (ram[0][file] & ram[1][file]) | (value & ~ram[1][file]);
+            if(file == 0x05){
+                latchPortA = value;
+            }else {
+                latchPortB = value;
             }
             return true;
         }
@@ -61,14 +56,13 @@ public class Execute {
         return false;
     }
 
-    public void UpdatePortsWithLatch(){
-        for(int i = 0; i < 8; i++) {
-            if ((ram[1][0x05] & (1 << i)) == 0) {
-                ram[0][0x05] = (ram[0][0x05] & ~(1 << i)) | (latchPortA & (1 << i));
-            }
-            if ((ram[1][0x06] & (1 << i)) == 0) {
-                ram[0][0x06] = (ram[0][0x06] & ~(1 << i)) | (latchPortB & (1 << i));
-            }
+    public void UpdatePortsWithLatch(int file){
+        if (file == 0x05) {
+            ram[0][file] = (ram[0][file] & ram[1][file]) | (latchPortA & ~ram[1][file]);
+        }
+        if (file == 0x06) {
+            ram[0][file] = (ram[0][file] & ram[1][file]) | (latchPortB & ~ ram[1][file]);
+
         }
     }
 
