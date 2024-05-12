@@ -21,7 +21,7 @@ public class GUI extends JFrame {
     private JButton stopButton;
     private JButton stepButton;
     private JButton resetButton;
-    private JTextPane LSTTextPane;
+    public JTextPane LSTTextPane;
     private JTabbedPane tabbedPane1;
     private JTextArea consoleTextArea;
     private JButton fileButton;

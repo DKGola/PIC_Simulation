@@ -1,22 +1,20 @@
 package src;
 
-import java.util.Arrays;
-
 public class Simulator {
-    private int[] rom;
-    private int[][] ram;
-    private int frequency;      // in Hz, 4000000 Hz = 1 µs
+    private final int[] rom;
+    private final int[][] ram;
+    public int frequency;      // in Hz, 4000000 Hz = 1 µs
     private double runtime;        // in microseconds
-    private int[] EEPRom;
+    private final int[] EEPRom;
     public static int programCounter;
     public static int wRegister;
-    private Decoder decoder;
+    private final Decoder decoder;
 
     public Execute getExecute() {
         return execute;
     }
 
-    private Execute execute;
+    private final Execute execute;
 
 
     public Simulator(int[] instructions) {
@@ -28,21 +26,14 @@ public class Simulator {
         powerOnReset();
         execute = new Execute(ram);
         decoder = new Decoder(ram, execute);
+        execute.interrupts.simulator = this;
     }
 
     /**
      * reads next instruction and gives it to the decoder
      */
     public void nextInstruction() {
-        System.out.println("\n");
-        System.out.printf("W %x\n", wRegister);
-        for(int i = 0; i < ram[0].length; i++){
-            if(i % 8 == 0){
-                System.out.println();
-            }
-            System.out.printf("%x, ", ram[0][i]);
-        }
-        if (!execute.isAsleep)
+        if (execute.isAsleep == false)
         {
             programCounter++;
             ram[0][2] = programCounter & 0b1111_1111;
@@ -50,6 +41,16 @@ public class Simulator {
             decoder.decode(rom[programCounter - 1]);
         }
         execute.interrupts.CheckInterrupt();
+
+        checkEEPRomReadWrite();
+
+        updateRuntime();
+
+        Program.gui.updateGUI(Program.simulator);
+        Program.gui.setLine();
+    }
+
+    private void checkEEPRomReadWrite(){
         // Write to EEPRom
         if(execute.getFlag(Flags.WriteEnableBit) == 1 && execute.getFlag(Flags.WriteControlBit) == 1){
             EEPRom[ram[0][9]] = ram[0][8];
@@ -74,9 +75,7 @@ public class Simulator {
             {0b1111_1111, 0, 0b0001_1000, 0, 0b001_1111, 0b1111_1111, 0, 0, 0, 0, 0}
         };
         for (int i = 0; i < values.length; i++){
-            for(int j = 0; j < values[i].length; j++){
-                ram[i][j + 1] = values[i][j];
-            }
+            System.arraycopy(values[i], 0, ram[i], 1, values[i].length);
         }
         wRegister = 0;
         programCounter = 0;
@@ -86,12 +85,12 @@ public class Simulator {
         }
     }
 
-    public void softReset() {
-        return;
+    public void softReset(){
+
     }
 
     public void updateRuntime() {
-            runtime += ((double)4_000_000 / frequency);
+        runtime += ((double)4_000_000 / frequency);
     }
 
     public int getPCL() {
