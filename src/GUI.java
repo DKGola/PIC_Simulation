@@ -23,9 +23,7 @@ public class GUI extends JFrame {
     private JButton resetButton;
     public JTextPane LSTTextPane;
     private JTabbedPane tabbedPane1;
-    private JTextArea consoleTextArea;
     private JButton fileButton;
-    private JButton helpButton;
     private JTable gprTable;
     private JTable sfrTable;
     private JPanel mainPanel;
@@ -273,30 +271,22 @@ public class GUI extends JFrame {
     {
         int[][] ram = Program.simulator.getRam();
         String[] columnNames = {"File Address", "Bank 0", "Bank 1"};
-        Object[][] data = new Object[37][3];    // 12 rows, 3 columns
-        // header
-        for (int i = 0; i < 3; i++) {
-            data[0][i] = columnNames[i];
-        }
+        Object[][] data = new Object[36][3];    // 36 rows, 3 columns
         // file address
         for (int i = 12; i < 48; i++) {     // gpr goes from 0Ch (12) to 2Fh (47)
-            data[i - 11][0] = String.format("%02Xh", i);
+            data[i - 12][0] = String.format("%02Xh", i);
         }
         // bank 0
         for (int i = 12; i < 48; i++) {
-            data[i - 11][1] = String.format("%02Xh", ram[0][i]);
+            data[i - 12][1] = String.format("%02Xh", ram[0][i]);
         }
         // bank 1
         for (int i = 12; i < 48; i++) {
-            data[i - 11][2] = String.format("%02Xh", ram[1][i]);
+            data[i - 12][2] = String.format("%02Xh", ram[1][i]);
         }
 
         CustomTableModel gprModel = new CustomTableModel(data, columnNames);
         gprTable.setModel(gprModel);
-        gprTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        for (int i = 0; i < gprTable.getColumnCount(); i++) {
-            gprTable.getColumnModel().getColumn(i).setPreferredWidth(50);
-        }
     }
 
     /**
