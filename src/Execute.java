@@ -215,7 +215,7 @@ public class Execute {
         if (result == 0) {
             Simulator.programCounter++;
             interrupts.updateTMR0();
-            Program.simulator.updateRuntime();
+            Program.simulator.incrementRuntime();
         }
         write(file, result, destinationBit);
     }
@@ -244,7 +244,7 @@ public class Execute {
         if (result == 0) {
             Simulator.programCounter++;
             interrupts.updateTMR0();
-            Program.simulator.updateRuntime();
+            Program.simulator.incrementRuntime();
         }
         write(file, result, destinationBit);
     }
@@ -411,7 +411,7 @@ public class Execute {
         int result = ram[getRP0()][file] & (1 << bit);
         if (result == 0) {
             Simulator.programCounter++;
-            Program.simulator.updateRuntime();
+            Program.simulator.incrementRuntime();
             interrupts.updateTMR0();
         }
     }
@@ -426,7 +426,7 @@ public class Execute {
         if (result != 0) {
             Simulator.programCounter++;
             interrupts.updateTMR0();
-            Program.simulator.updateRuntime();
+            Program.simulator.incrementRuntime();
         }
     }
 
@@ -464,7 +464,7 @@ public class Execute {
     public void GOTO(int literal) {
         Simulator.programCounter = literal + ((ram[0][10] & 0b0001_1000) << 8);
         interrupts.updateTMR0();
-        Program.simulator.updateRuntime();
+        Program.simulator.incrementRuntime();
     }
 
     public void IORLW(int literal) {
@@ -481,20 +481,20 @@ public class Execute {
         interrupts.updateTMR0();
         setFlag(Flags.GlobalInterruptEnable, 0);
         Simulator.programCounter = returnStack.pop();
-        Program.simulator.updateRuntime();
+        Program.simulator.incrementRuntime();
     }
 
     public void RETLW(int literal) {
         Simulator.programCounter = returnStack.pop();
         Simulator.wRegister = literal;
         interrupts.updateTMR0();
-        Program.simulator.updateRuntime();
+        Program.simulator.incrementRuntime();
     }
 
     public void RETURN() {
         Simulator.programCounter = returnStack.pop();
         interrupts.updateTMR0();
-        Program.simulator.updateRuntime();
+        Program.simulator.incrementRuntime();
     }
 
     public void SLEEP() {

@@ -69,7 +69,7 @@ public class Program {
                 bp = true;
             }
             simulator.nextInstruction();
-            // 1000 milliseconds delay after every instruction
+            // 100 milliseconds delay after every instruction
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ie) {
