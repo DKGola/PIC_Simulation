@@ -12,7 +12,8 @@ public enum Flags {
     TimerClockSource(5, 1,1), TimerSourceEdge(4,1,1), PrescalerAssignment(3, 1, 1),
     InterruptEdgeSelect(6, 1, 1),
     // EECON 1 register 8  bank 1
-    WriteEnableBit(2, 8, 1), WriteControlBit(1, 8, 1), ReadControlBit(0, 8, 1);
+    WriteEnableBit(2, 8, 1), WriteControlBit(1, 8, 1), ReadControlBit(0, 8, 1),
+    WriteInterrupt(4,8,1);
 
     public final int bit;
     public final int register;

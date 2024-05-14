@@ -34,6 +34,7 @@ public class Simulator {
      * reads next instruction and gives it to the decoder
      */
     public void nextInstruction() {
+        checkEEPRomReadWrite();
         if (execute.isAsleep == false)
         {
             programCounter++;
@@ -45,7 +46,6 @@ public class Simulator {
 
         incrementRuntime();
 
-        checkEEPRomReadWrite();
     }
 
     private void checkEEPRomReadWrite(){
@@ -53,6 +53,7 @@ public class Simulator {
         if(execute.getFlag(Flags.WriteEnableBit) == 1 && execute.getFlag(Flags.WriteControlBit) == 1){
             EEPRom[ram[0][9]] = ram[0][8];
             execute.setFlag(Flags.WriteControlBit, 0);
+            execute.setFlag(Flags.WriteInterrupt, 1);
         }
         // Read from EEPRom
         if(execute.getFlag(Flags.ReadControlBit) == 1){
