@@ -459,6 +459,8 @@ public class Execute {
 
     public void CLRWDT() {
         interrupts.clearWatchdog();
+        setFlag(Flags.TimeOut, 1);
+        setFlag(Flags.PowerDown, 1);
     }
 
     public void GOTO(int literal) {
@@ -499,6 +501,8 @@ public class Execute {
 
     public void SLEEP() {
         isAsleep = true;
+        setFlag(Flags.PowerDown, 0);
+        setFlag(Flags.TimeOut, 1);
     }
 
     public void SUBLW(int literal) {

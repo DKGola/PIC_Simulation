@@ -82,6 +82,8 @@ public class Simulator {
         runtime = 0;
         if (execute != null) {
             execute.returnStack.resetStack();
+            execute.interrupts.clearWatchdog();
+            execute.interrupts.SetPrescaler(0);
         }
     }
 

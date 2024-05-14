@@ -57,11 +57,15 @@ public class InterruHandler {
             ram[0][1] = 0;
         }
 
-        if (execute.getFlag(Flags.TImerOverflow) == 1 && execute.getFlag(Flags.TimerInterrupt) == 1 && execute.getFlag(Flags.GlobalInterruptEnable) == 0) {
+        if (execute.getFlag(Flags.TImerOverflow) == 1 && execute.getFlag(Flags.TimerInterrupt) == 1 && execute.getFlag(Flags.GlobalInterruptEnable) == 1) {
             // Timer Interrupt
-            execute.setFlag(Flags.GlobalInterruptEnable, 1);
-            execute.returnStack.push(Simulator.programCounter);
-            Simulator.programCounter = 4;
+            if(Program.simulator.getExecute().isAsleep){
+                Program.simulator.getExecute().isAsleep = false;
+            }else {
+                execute.setFlag(Flags.GlobalInterruptEnable, 0);
+                execute.returnStack.push(Simulator.programCounter);
+                Simulator.programCounter = 4;
+            }
         }
     }
 
@@ -95,23 +99,31 @@ public class InterruHandler {
 
         // Interrupt when enable
         if(execute.getFlag(Flags.RB0Interrupt) == 1 && execute.getFlag(Flags.GlobalInterruptEnable) == 1 && execute.getFlag(Flags.RB0InterruptEnable) == 1){
-            execute.setFlag(Flags.GlobalInterruptEnable, 0);
-            execute.returnStack.push(Simulator.programCounter);
-            Simulator.programCounter = 4;
+            if(Program.simulator.getExecute().isAsleep){
+                Program.simulator.getExecute().isAsleep = false;
+            }else {
+                execute.setFlag(Flags.GlobalInterruptEnable, 0);
+                execute.returnStack.push(Simulator.programCounter);
+                Simulator.programCounter = 4;
+            }
         }
         previousRB0 = RB0;
 
         
         // RB Port Change Interrupt
-        int RB7ToRB4 = ram[0][6] & 0b11110000; 
-        if(RB7ToRB4 != previousRB7ToRB4){
+        int RB7ToRB4 = ram[0][6] & 0b11110000;
+        if((RB7ToRB4 & ram[1][6]) != (previousRB7ToRB4 & ram[1][6])){
             execute.setFlag(Flags.RBInterrupt, 1);
         }
 
         if(execute.getFlag(Flags.RBInterrupt) == 1 && execute.getFlag(Flags.RBPortChangeEnable) == 1 && execute.getFlag(Flags.GlobalInterruptEnable) == 1){
-            execute.setFlag(Flags.GlobalInterruptEnable, 0);
-            execute.returnStack.push(Simulator.programCounter);
-            Simulator.programCounter = 4;
+            if(Program.simulator.getExecute().isAsleep){
+                Program.simulator.getExecute().isAsleep = false;
+            }else {
+                execute.setFlag(Flags.GlobalInterruptEnable, 0);
+                execute.returnStack.push(Simulator.programCounter);
+                Simulator.programCounter = 4;
+            }
         }
         previousRB7ToRB4 = RB7ToRB4;
     }
@@ -134,6 +146,7 @@ public class InterruHandler {
         if(watchdogCount >= 18){
             if(execute.isAsleep){
                 execute.isAsleep = false;
+                execute.setFlag(Flags.TimeOut, 0);
             }else{
                 Program.simulator.softReset();
             }
