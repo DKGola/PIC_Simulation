@@ -43,6 +43,7 @@ public class GUI extends JFrame {
     private JRadioButton a1MHzRadioButton;
     private JRadioButton a20MHzRadioButton;
     private JRadioButton a4MHzRadioButton;
+    private JRadioButton watchdogEnableRadioButton;
     private File selectedFile;
     private int[] lines;
     private int line;
@@ -229,6 +230,13 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Program.simulator.softReset();
                 Program.gui.updateGUI(Program.simulator);
+            }
+        });
+
+        watchdogEnableRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Program.simulator.getExecute().interrupts.ToggleWatchdog();
             }
         });
 

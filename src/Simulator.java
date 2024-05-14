@@ -43,9 +43,9 @@ public class Simulator {
         }
         execute.interrupts.CheckInterrupt();
 
-        checkEEPRomReadWrite();
-
         incrementRuntime();
+
+        checkEEPRomReadWrite();
     }
 
     private void checkEEPRomReadWrite(){

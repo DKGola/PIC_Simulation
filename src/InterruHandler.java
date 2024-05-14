@@ -8,7 +8,7 @@ public class InterruHandler {
     private int previousRB0;
     private final Execute execute;
     private final int[][] ram;
-    private final boolean watchdogEnable;
+    private boolean watchdogEnable;
 
     public InterruHandler(Execute execute, int[][] ram){
         this.ram = ram;
@@ -140,6 +140,11 @@ public class InterruHandler {
             watchdogCount = 0;
         }
     }
+
+    public void ToggleWatchdog(){
+        watchdogEnable = !watchdogEnable;
+    }
+
     public void clearWatchdog(){
         watchdogCount = 0;
     }
