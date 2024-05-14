@@ -355,7 +355,7 @@ public class GUI extends JFrame {
         updateIoData();
 
         Object[][] data = new Object[7][9]; // 7 rows, 9 columns
-        String[] columnNames = {"RB", "7", "6", "5", "4", "3", "2", "1", "0"};
+        String[] columnNames = {"", "7", "6", "5", "4", "3", "2", "1", "0"};
 
         // RA
         data[0][0] = "RA";
