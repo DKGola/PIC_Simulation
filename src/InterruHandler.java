@@ -135,7 +135,7 @@ public class InterruHandler {
             if(execute.isAsleep){
                 execute.isAsleep = false;
             }else{
-                Program.simulator.powerOnReset();
+                Program.simulator.softReset();
             }
             watchdogCount = 0;
         }

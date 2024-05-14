@@ -26,5 +26,6 @@ public class PICStack {
 
     public void resetStack() {
         Arrays.fill(stack, 0);
+        stackPointer = 0;
     }
 }
