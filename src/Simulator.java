@@ -108,7 +108,19 @@ public class Simulator {
     }
 
     public void softReset(){
-
+        int[][] and = {
+                {0b1111_1111, 0, 0b0000_0111, 0b1111_1111, 0b1111_1111, 0b1111_1111, 0, 0b1111_1111, 0b1111_1111, 0, 0b0000_0001},
+                {0, 0, 0b0000_0111, 0b1111_1111, 0, 0, 0, 0, 0, 0b0000_0001}
+        };
+        for(int i = 0; i < and.length; i++){
+            for(int j = 0; j < and[i].length; j++){
+                ram[i][j + 1] = ram[i][j + 1] & and[i][j];
+            }
+        }
+        ram[1][1] = 0b1111_1111;
+        ram[1][5] = 0b0001_1111;
+        ram[1][6] = 0b1111_1111;
+        programCounter = 0;
     }
 
     public void incrementRuntime() {
