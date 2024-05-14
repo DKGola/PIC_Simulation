@@ -526,5 +526,6 @@ public class Execute {
 
     public void XORLW(int literal) {
         Simulator.wRegister = Simulator.wRegister ^ literal;
+        testResultZero(Simulator.wRegister);
     }
 }

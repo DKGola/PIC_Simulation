@@ -12,13 +12,13 @@ public class Program {
     private static boolean bp;
 
     public static void main(String[] args) throws IOException {
-        Program program = new Program();
-        program.start();
+        start();
     }
 
-    public void start() throws IOException {
+    public static void start() throws IOException {
         gui = new GUI();
         bp = true;
+
         simulator = new Simulator(new int[1024]);
 
         File selectedFile = gui.waitForSelectedFile();
@@ -30,7 +30,7 @@ public class Program {
         runProgram();
     }
 
-    private void loadInstructions(File file) throws IOException {
+    public static void loadInstructions(File file) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String input;
         int[] instructions = new int[1024];

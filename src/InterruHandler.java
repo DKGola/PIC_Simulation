@@ -9,7 +9,6 @@ public class InterruHandler {
     private final Execute execute;
     private final int[][] ram;
     private final boolean watchdogEnable;
-    public Simulator simulator;
 
     public InterruHandler(Execute execute, int[][] ram){
         this.ram = ram;
@@ -125,10 +124,10 @@ public class InterruHandler {
         // Update WatchdogTimer
         if (execute.getFlag(Flags.PrescalerAssignment) == 1) {
             if (handlePrescaler()) {
-                watchdogCount += (4_000_000.0 / simulator.frequency);
+                watchdogCount += (4_000_000.0 / Program.simulator.frequency);
             }
         } else {
-            watchdogCount += (4_000_000.0 / simulator.frequency);
+            watchdogCount += (4_000_000.0 / Program.simulator.frequency);
         }
 
         // WatchdogTimer Interrupt

@@ -7,9 +7,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +76,11 @@ public class GUI extends JFrame {
                     // set selected file
                     java.io.File selectedFile = fileChooser.getSelectedFile();
                     setSelectedFile(selectedFile);
+                    try {
+                        Program.simulator.newInstructions(selectedFile);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     try {
                         BufferedReader reader = new BufferedReader(new FileReader(selectedFile));
                         List<String> lines = new ArrayList<>();

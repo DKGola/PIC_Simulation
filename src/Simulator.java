@@ -1,7 +1,9 @@
 package src;
+import java.io.*;
+import java.util.Arrays;
 
 public class Simulator {
-    private final int[] rom;
+    private int[] rom;
     private final int[][] ram;
     public int frequency;      // in Hz, 4000000 Hz = 1 µs
     private double runtime;        // in microseconds
@@ -26,7 +28,6 @@ public class Simulator {
         powerOnReset();
         execute = new Execute(ram);
         decoder = new Decoder(ram, execute);
-        execute.interrupts.simulator = this;
     }
 
     /**
@@ -65,6 +66,10 @@ public class Simulator {
     }
 
     public void powerOnReset(){
+        Arrays.fill(ram[0], 0);
+        Arrays.fill(ram[1], 0);
+        Arrays.fill(EEPRom, 0);
+
         int[][] values = {
             {0, 0, 0b0001_1000, 0, 0, 0, 0, 0, 0, 0, 0},
             {0b1111_1111, 0, 0b0001_1000, 0, 0b001_1111, 0b1111_1111, 0, 0, 0, 0, 0}
@@ -78,6 +83,26 @@ public class Simulator {
         if (execute != null) {
             execute.returnStack.resetStack();
         }
+    }
+
+    public void newInstructions(File file) throws IOException {
+        powerOnReset();
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String input;
+        int[] instructions = new int[1024];
+        int[] lines = new int[1024];
+        int index = 0;
+        while ((input = reader.readLine()) != null) {
+            if (!input.startsWith(" ")) {
+                instructions[index] = Integer.parseInt(input.substring(5, 9), 16);
+                lines[index] = Integer.parseInt(input.substring(20,25));
+                index++;
+            }
+        }
+        reader.close();
+
+        Program.gui.setLines(lines);
+        rom = instructions;
     }
 
     public void softReset(){
