@@ -44,7 +44,7 @@ public class Simulator {
 
         checkEEPRomReadWrite();
 
-        updateRuntime();
+        incrementRuntime();
 
         Program.gui.updateGUI(Program.simulator);
         Program.gui.setLine();
@@ -62,8 +62,6 @@ public class Simulator {
             execute.setFlag(Flags.ReadControlBit, 0);
         }
 
-        // update runtime
-        updateRuntime();
         // update GUI after instruction was executed
         Program.gui.updateGUI(Program.simulator);
         Program.gui.setLine();
@@ -89,7 +87,7 @@ public class Simulator {
 
     }
 
-    public void updateRuntime() {
+    public void incrementRuntime() {
         runtime += ((double)4_000_000 / frequency);
     }
 
