@@ -45,9 +45,6 @@ public class Simulator {
         checkEEPRomReadWrite();
 
         incrementRuntime();
-
-        Program.gui.updateGUI(Program.simulator);
-        Program.gui.setLine();
     }
 
     private void checkEEPRomReadWrite(){
