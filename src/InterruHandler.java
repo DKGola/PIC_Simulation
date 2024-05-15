@@ -143,7 +143,7 @@ public class InterruHandler {
         }
 
         // WatchdogTimer Interrupt
-        if(watchdogCount >= 18){
+        if(watchdogCount >= 18000){
             if(execute.isAsleep){
                 execute.isAsleep = false;
                 execute.setFlag(Flags.TimeOut, 0);

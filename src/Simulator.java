@@ -83,6 +83,7 @@ public class Simulator {
             execute.returnStack.resetStack();
             execute.interrupts.clearWatchdog();
             execute.interrupts.SetPrescaler(0);
+            execute.isAsleep = false;
         }
     }
 
