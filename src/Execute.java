@@ -7,8 +7,8 @@ import java.util.List;
  */
 public class Execute {
     private final int[][] ram;
-    private int latchPortA;
-    private int latchPortB;
+    private final int[] latchPortA = new int[8];
+    private final int[] latchPortB = new int[8];
     public PICStack returnStack = new PICStack();
     public boolean isAsleep = false;
 
@@ -46,9 +46,17 @@ public class Execute {
         if((file == 0x05 || file == 0x06) && getRP0() == 0){
             ram[0][file] = (ram[0][file] & ram[1][file]) | (value & ~ram[1][file]);
             if(file == 0x05){
-                latchPortA = value;
+                for(int i = 0; i < 8; i++){
+                    if((ram[1][5] & (1 << i)) != 0 && (value & (1 << i)) != (ram[0][5] & (1 << i))){
+                        latchPortA[i] = value & (1 << i) >> i;
+                    }
+                }
             }else {
-                latchPortB = value;
+                for(int i = 0; i < 8; i++){
+                    if((ram[1][6] & (1 << i)) != 0){
+                        latchPortB[i] = value & (1 << i) >> i;
+                    }
+                }
             }
             return true;
         }
@@ -58,11 +66,20 @@ public class Execute {
 
     public void UpdatePortsWithLatch(int file){
         if (file == 0x05) {
-            ram[0][file] = (ram[0][file] & ram[1][file]) | (latchPortA & ~ram[1][file]);
+            for(int i = 0; i < 8; i++){
+                if((ram[1][file] & (1 << i)) == 0 && latchPortA[i] >= 0){
+                    ram[0][file] = (ram[0][file] & ~(1 << i)) | (latchPortA[i] << i);
+                    latchPortA[i] = -1;
+                }
+            }
         }
         if (file == 0x06) {
-            ram[0][file] = (ram[0][file] & ram[1][file]) | (latchPortB & ~ ram[1][file]);
-
+            for(int i = 0; i < 8; i++){
+                if((ram[1][file] & (1 << i)) == 0 && latchPortB[i] >= 0){
+                    ram[0][file] = (ram[0][file] & ~(1 << i)) | (latchPortB[i] << i);
+                    latchPortB[i] = -1;
+                }
+            }
         }
     }
 
