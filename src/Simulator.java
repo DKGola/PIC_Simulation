@@ -45,7 +45,9 @@ public class Simulator {
         execute.interrupts.CheckInterrupt();
 
         incrementRuntime();
-
+        // update GUI after instruction was executed
+        Program.gui.updateGUI(Program.simulator);
+        Program.gui.setLine();
     }
 
     private void checkEEPRomReadWrite(){
@@ -60,10 +62,6 @@ public class Simulator {
             ram[0][8] = EEPRom[ram[0][9]];
             execute.setFlag(Flags.ReadControlBit, 0);
         }
-
-        // update GUI after instruction was executed
-        Program.gui.updateGUI(Program.simulator);
-        Program.gui.setLine();
     }
 
     public void powerOnReset(){
