@@ -15,6 +15,10 @@ public class Program {
         start();
     }
 
+    /**
+     * start program (gui, create simulator, wait for file select)
+     * @throws IOException
+     */
     public static void start() throws IOException {
         gui = new GUI();
         bp = true;
@@ -30,6 +34,12 @@ public class Program {
         runProgram();
     }
 
+    /**
+     * parse input file line for line and load into instructions-array;
+     * give instructions to simulator
+     * @param file
+     * @throws IOException
+     */
     public static void loadInstructions(File file) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String input;
@@ -51,6 +61,9 @@ public class Program {
         Program.gui.updateGUI(Program.simulator);
     }
 
+    /**
+     * run program if running == true and no breakpoint is set
+     */
     public static void runProgram() {
         // don't run if no file is selected
         if (gui.getSelectedFile() == null) {
