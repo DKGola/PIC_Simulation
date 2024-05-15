@@ -45,7 +45,9 @@ public class Simulator {
         execute.interrupts.CheckInterrupt();
 
         incrementRuntime();
-
+        // update GUI after instruction was executed
+        Program.gui.updateGUI(Program.simulator);
+        Program.gui.setLine();
     }
 
     private void checkEEPRomReadWrite(){
@@ -60,10 +62,6 @@ public class Simulator {
             ram[0][8] = EEPRom[ram[0][9]];
             execute.setFlag(Flags.ReadControlBit, 0);
         }
-
-        // update GUI after instruction was executed
-        Program.gui.updateGUI(Program.simulator);
-        Program.gui.setLine();
     }
 
     public void powerOnReset(){
@@ -97,8 +95,8 @@ public class Simulator {
         int index = 0;
         while ((input = reader.readLine()) != null) {
             if (!input.startsWith(" ")) {
-                instructions[index] = Integer.parseInt(input.substring(5, 9), 16);
-                lines[index] = Integer.parseInt(input.substring(20,25));
+                instructions[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(5, 9), 16);
+                lines[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(20,25));
                 index++;
             }
         }
