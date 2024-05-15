@@ -38,8 +38,8 @@ public class Program {
         int index = 0;
         while ((input = reader.readLine()) != null) {
             if (!input.startsWith(" ")) {
-                instructions[index] = Integer.parseInt(input.substring(5, 9), 16);
-                lines[index] = Integer.parseInt(input.substring(20,25));
+                instructions[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(5, 9), 16);
+                lines[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(20,25));
                 index++;
             }
         }
@@ -56,8 +56,6 @@ public class Program {
         if (gui.getSelectedFile() == null) {
             return;
         }
-
-        // HIER RESET EINBAUEN
 
         while (running) {
             // stops program if breakpoint is set
