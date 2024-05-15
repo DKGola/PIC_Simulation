@@ -287,6 +287,7 @@ public class Execute {
 
     }
 
+    // Rotate Left through Carry
     public void RLF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -323,7 +324,6 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
-    // Test needed
     public void SUBWF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -335,6 +335,7 @@ public class Execute {
         // check DC and set if necessary
         int digitCarryResult = (ram[getRP0()][file] & 0xF) - (Simulator.wRegister & 0xF);
 
+        // In this PIC, flags are implemented inversely in SUBWF
         if (result < 0) {
             setFlag(Flags.Carry, 0);
         } else {
@@ -509,6 +510,7 @@ public class Execute {
         int result = literal - Simulator.wRegister;
         int digitResult = (literal & 0xF) - (Simulator.wRegister & 0xF);
 
+        // In this PIC, flags are inversed for SUBLW
         if (result < 0) {
             setFlag(Flags.Carry, 0);
         } else {
