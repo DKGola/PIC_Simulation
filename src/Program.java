@@ -23,7 +23,7 @@ public class Program {
 
         File selectedFile = gui.waitForSelectedFile();
 
-        // Eine Datei wurde ausgewählt
+        // a file was selected
         System.out.println("Ausgewählte Datei: " + selectedFile.getAbsolutePath());
         loadInstructions(selectedFile);
         running = false; // Set running to false when starting a new program
