@@ -15,6 +15,8 @@ public class Execute {
     public InterruHandler interrupts;
 
     public Execute(int[][] ram) {
+        Arrays.fill(latchPortA, -1);
+        Arrays.fill(latchPortB, -1);
         this.ram = ram;
         interrupts = new InterruHandler(this, ram);
     }

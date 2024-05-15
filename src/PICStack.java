@@ -3,7 +3,7 @@ package src;
 import java.util.Arrays;
 
 public class PICStack {
-    private int[] stack = new int[8];
+    private final int[] stack = new int[8];
     private int stackPointer = 0;
 
     public void push(int num){
