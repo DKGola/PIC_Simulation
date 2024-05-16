@@ -20,10 +20,9 @@ public class Program {
      * @throws IOException
      */
     public static void start() throws IOException {
+        simulator = new Simulator(new int[1024]);
         gui = new GUI();
         bp = true;
-
-        simulator = new Simulator(new int[1024]);
 
         File selectedFile = gui.waitForSelectedFile();
 
