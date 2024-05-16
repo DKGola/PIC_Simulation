@@ -501,7 +501,7 @@ public class Execute {
 
     public void RETFIE() {
         interrupts.updateTMR0();
-        setFlag(Flags.GlobalInterruptEnable, 0);
+        setFlag(Flags.GlobalInterruptEnable, 1);
         Simulator.programCounter = returnStack.pop();
         Program.simulator.incrementRuntime();
     }
