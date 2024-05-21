@@ -23,7 +23,7 @@ public class Program {
         simulator = new Simulator(new int[1024]);
         gui = new GUI();
         bp = true;
-
+        // get file from GUI
         File selectedFile = gui.waitForSelectedFile();
 
         // a file was selected
@@ -42,11 +42,12 @@ public class Program {
     public static void loadInstructions(File file) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String input;
-        int[] instructions = new int[1024];
-        int[] lines = new int[1024];
+        // arrays for commands
+        int[] instructions = new int[1024]; // for commands
+        int[] lines = new int[1024];    // for line numbers
         int index = 0;
         while ((input = reader.readLine()) != null) {
-            if (!input.startsWith(" ")) {
+            if (!input.startsWith(" ")) {   // only command-lines start with number
                 instructions[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(5, 9), 16);
                 lines[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(20,25));
                 index++;

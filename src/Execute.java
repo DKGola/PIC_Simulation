@@ -31,10 +31,12 @@ public class Execute {
 
         List<Integer> shared = Arrays.asList(2, 3, 4, 10, 11);
         testPCL(file, value);
+        // write in both banks, if they share the same content
         if (shared.contains(file) || file >= 0x0C) {
             ram[0][file] = value;
             ram[1][file] = value;
         } else {
+        // write in current bank using getRP0()
             ram[getRP0()][file] = value;
         }
 
@@ -86,9 +88,9 @@ public class Execute {
     }
 
     private void write(int file, int value, int destinationBit) {
-        if (destinationBit == 1) {
+        if (destinationBit == 1) {  // write in file-adress if d-bit is 1
             write(file, value);
-        } else {
+        } else {                    // write in w-register if d-bit is 0
             Simulator.wRegister = value;
         }
     }
@@ -104,9 +106,9 @@ public class Execute {
     }
 
     public void setFlag(Flags flag, int value) {
-        if (value == 0) {
+        if (value == 0) {   // set flag to 0
             write(flag.register, ram[flag.bank][flag.register] & ~(1 << flag.bit));
-        } else if (value == 1) {
+        } else if (value == 1) {    // set flag to 1
             write(flag.register, ram[flag.bank][flag.register] | (1 << flag.bit));
         }
     }
@@ -227,15 +229,17 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
-
+        // decrement file-content
         int result = ram[getRP0()][file] - 1;
-        result = result & 0xFF;
-        testResultZero(result);
+        result = result & 0xFF; // make 8 bit
+        testResultZero(result); // zero flag test
+        // if 0, skip next command, simulate NOP
         if (result == 0) {
             Simulator.programCounter++;
             interrupts.updateTMR0();
             Program.simulator.incrementRuntime();
         }
+        // write result in w if d == 0, in f if d == 1
         write(file, result, destinationBit);
     }
 
@@ -284,10 +288,10 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
-
+        // set Zero-Flag is content of file-adress is 0
         int result = ram[getRP0()][file];
         testResultZero(result);
-
+        // write content of file adress i w-register if it is 0
         if (destinationBit == 0) {
             Simulator.wRegister = ram[getRP0()][file];
         }
@@ -329,17 +333,17 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
-
+        // store carry flag in variable
         int carryFlag = ram[0][3] & 1;
-
+        // store lowest bit of file-adress in variable
         int lowerBit = ram[getRP0()][file] & 1;
-
+        // shift file-content 1 to the right, last bit is old carry flag
         int result = (ram[getRP0()][file] >> 1) + (carryFlag << 7);
-
+        // cut top off result
         result = result & 0xFF;
-
+        // carry-flag = lowest bit of file-adress
         setFlag(Flags.Carry, lowerBit);
-
+        // write in w-reg. or f, depending on d-bit
         write(file, result, destinationBit);
     }
 
@@ -348,31 +352,28 @@ public class Execute {
         if (file == 0) {
             file = ram[0][4];
         }
-
+        // subtract w-register from file adress, store result in variable
         int result = ram[getRP0()][file] - Simulator.wRegister;
-
-        // check DC and set if necessary
+        // subtract lowest 4 bits for DC
         int digitCarryResult = (ram[getRP0()][file] & 0xF) - (Simulator.wRegister & 0xF);
 
-        // In this PIC, flags are implemented inversely in SUBWF
+        // In SUBWF, Carry-Flag is set if result >= 0
         if (result < 0) {
             setFlag(Flags.Carry, 0);
         } else {
             setFlag(Flags.Carry, 1);
         }
-
+        // In SUBWF, Digit-Carry-Flag is set if digitCarryResult >= 0
         if (digitCarryResult < 0) {
             setFlag(Flags.DigitCarry, 0);
         } else {
             setFlag(Flags.DigitCarry, 1);
         }
 
-        // store result in f if dest is 1, in w if dest is 0
         result = result & 0xFF;
-
-        // check Zero
+        // set Zero-Flag if result is 0
         testResultZero(result);
-
+        // store result in f if dest is 1, in w if dest is 0
         write(file, result, destinationBit);
     }
 
@@ -425,14 +426,14 @@ public class Execute {
     public void BTFSC(int file, int bit) {
         // test for indirect addressing
         if (file == 0) {
-            file = ram[0][4];
+            file = ram[0][4];   // get address from fsr if indirect
         }
-
+        // AND-mask bit with file-address -> 0 if the bit at this position is 0
         int result = ram[getRP0()][file] & (1 << bit);
         if (result == 0) {
-            Simulator.programCounter++;
-            Program.simulator.incrementRuntime();
-            interrupts.updateTMR0();
+            Simulator.programCounter++;     // skip next command
+            Program.simulator.incrementRuntime();   // instead of NOP
+            interrupts.updateTMR0();    // update timer
         }
     }
 
@@ -473,7 +474,7 @@ public class Execute {
     }
 
     public void CALL(int literal) {
-        returnStack.push(Simulator.programCounter);
+        returnStack.push(Simulator.programCounter); // push current pc on stack
         GOTO(literal);
     }
 
@@ -484,9 +485,12 @@ public class Execute {
     }
 
     public void GOTO(int literal) {
+        // set program counter to:
+        // first 11 bits from literal k
+        // 11th & 12th bit from PCLATH<4:3>
         Simulator.programCounter = literal + ((ram[0][10] & 0b0001_1000) << 8);
-        interrupts.updateTMR0();
-        Program.simulator.incrementRuntime();
+        interrupts.updateTMR0();    // update timer
+        Program.simulator.incrementRuntime();   // 2-cycle-command
     }
 
     public void IORLW(int literal) {
