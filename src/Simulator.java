@@ -31,11 +31,11 @@ public class Simulator {
     }
 
     /**
-     * reads next instruction and gives it to the decoder
+     * reads next instruction and passes it to the decoder
      */
     public void nextInstruction() {
         checkEEPRomReadWrite();
-        if (execute.isAsleep == false)
+        if (!execute.isAsleep)
         {
             programCounter++;
             ram[0][2] = programCounter & 0b1111_1111;
@@ -50,6 +50,9 @@ public class Simulator {
         Program.gui.setLine();
     }
 
+    /**
+     * write or read into/from EEPROM - a ROM which still saves its data even after shutdown
+     */
     private void checkEEPRomReadWrite(){
         // Write to EEPRom
         if(execute.getFlag(Flags.WriteEnableBit) == 1 && execute.getFlag(Flags.WriteControlBit) == 1){
@@ -64,6 +67,9 @@ public class Simulator {
         }
     }
 
+    /**
+     * reset all registers as written in the original PIC-documentation
+     */
     public void powerOnReset(){
         Arrays.fill(ram[0], 0);
         Arrays.fill(ram[1], 0);
@@ -87,18 +93,21 @@ public class Simulator {
         }
     }
 
+    /**
+     * used when instructions are loaded and shall be replaced by new ones
+     * @param file newly selected file using filechooser
+     * @throws IOException in case of an IO-Exception
+     */
     public void newInstructions(File file) throws IOException {
         powerOnReset();
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String input;
         int[] instructions = new int[1024];
         int[] lines = new int[1024];
-        int index = 0;
         while ((input = reader.readLine()) != null) {
             if (!input.startsWith(" ")) {
                 instructions[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(5, 9), 16);
                 lines[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(20,25));
-                index++;
             }
         }
         reader.close();
@@ -107,6 +116,9 @@ public class Simulator {
         rom = instructions;
     }
 
+    /**
+     * soft reset used by InterruptHandler according to original PIC-documentation
+     */
     public void softReset(){
         int[][] and = {
                 {0b1111_1111, 0, 0b0000_0111, 0b1111_1111, 0b1111_1111, 0b1111_1111, 0, 0b1111_1111, 0b1111_1111, 0, 0b0000_0001},
@@ -123,38 +135,79 @@ public class Simulator {
         programCounter = 0;
     }
 
+    /**
+     * increment total runtime
+     */
     public void incrementRuntime() {
         runtime += ((double)4_000_000 / frequency);
     }
 
+    /**
+     * get PCL content
+     * @return PCL content (= RAM[0][2] and RAM[1][2])
+     */
     public int getPCL() {
         return ram[0][2];       // PCL is in RAM[0][2] and RAM[1][2]
     }
 
+    /**
+     * get PCLath content
+     * @return PCLath content ( = RAM[0][A] and RAM[1][A])
+     */
     public int getPCLath() {
         return ram[0][10];      // PCLATH is in RAM[0][A] and RAM[1][A]
     }
 
+    /**
+     * get carry-flag
+     * @return carry-flag
+     */
     public int getCarry() {
         return execute.getFlag(Flags.Carry);
     }
 
+    /**
+     * get digit-carry-flag
+     * @return digit-carry-flag
+     */
     public int getDigitCarry() {
         return execute.getFlag(Flags.DigitCarry);
     }
 
+    /**
+     * get zero-flag
+     * @return zero-flag
+     */
     public int getZero() {
         return execute.getFlag(Flags.Zero);
     }
+
+    /**
+     * get ram
+     * @return ram as double int[][]-array
+     */
     public int[][] getRam() {return ram;}
+
+    /**
+     * get total runtime
+     * @return total runtime
+     */
     public double getRuntime() {
         return runtime;
     }
 
+    /**
+     * get current set frequency
+     * @return frequency
+     */
     public int getFrequency() {
         return frequency;
     }
 
+    /**
+     * set frequency
+     * @param frequency frequency which controls how many milliseconds one command takes
+     */
     public void setFrequency(int frequency) {
         this.frequency = frequency;
     }

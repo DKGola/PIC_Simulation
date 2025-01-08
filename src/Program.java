@@ -9,7 +9,7 @@ public class Program {
     public static boolean running;
     public static Simulator simulator;
     public static GUI gui;
-    private static boolean bp;
+    private static boolean breakpoint;
 
     public static void main(String[] args) throws IOException {
         start();
@@ -17,45 +17,43 @@ public class Program {
 
     /**
      * start program (gui, create simulator, wait for file select)
-     * @throws IOException
+     * @throws IOException in case of an IO-Exception
      */
     public static void start() throws IOException {
         simulator = new Simulator(new int[1024]);
         gui = new GUI();
-        bp = true;
+        breakpoint = true;
         // get file from GUI
         File selectedFile = gui.waitForSelectedFile();
 
         // a file was selected
-        System.out.println("Ausgewählte Datei: " + selectedFile.getAbsolutePath());
+        System.out.println("Selected File: " + selectedFile.getAbsolutePath());
         loadInstructions(selectedFile);
-        running = false; // Set running to false when starting a new program
+        running = false; // set running to false when starting a new program
         runProgram();
     }
 
     /**
      * parse input file line for line and load into instructions-array;
      * give instructions to simulator
-     * @param file
-     * @throws IOException
+     * @param file selected file using the filechooser
+     * @throws IOException in case of an IO-Exception
      */
     public static void loadInstructions(File file) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String input;
-        // arrays for commands
+        // arrays to store commands read from file
         int[] instructions = new int[1024]; // for commands
         int[] lines = new int[1024];    // for line numbers
-        int index = 0;
         while ((input = reader.readLine()) != null) {
-            if (!input.startsWith(" ")) {   // only command-lines start with number
+            if (!input.startsWith(" ")) {   // only command-lines start with number -> can be ignored
                 instructions[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(5, 9), 16);
                 lines[Integer.parseInt(input.substring(0,4), 16)] = Integer.parseInt(input.substring(20,25));
-                index++;
             }
         }
         reader.close();
 
-        // load instructions in simulator
+        // pass instructions to simulator instance
         simulator = new Simulator(instructions);
         gui.setLines(lines);
         Program.gui.updateGUI(Program.simulator);
@@ -72,12 +70,12 @@ public class Program {
 
         while (running) {
             // stops program if breakpoint is set
-            if (gui.hasBreakpoint() && bp) {
+            if (gui.hasBreakpoint() && breakpoint) {
                 running = false;
-                bp = false;
+                breakpoint = false;
                 continue;
             } else {
-                bp = true;
+                breakpoint = true;
             }
             simulator.nextInstruction();
             // 100 milliseconds delay after every instruction

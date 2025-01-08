@@ -12,15 +12,24 @@ public class Execute {
     public PICStack returnStack = new PICStack();
     public boolean isAsleep = false;
 
-    public InterruHandler interrupts;
+    public InterruptHandler interrupts;
 
+    /**
+     * Execute constructor
+     * @param ram ram passed from Decoder
+     */
     public Execute(int[][] ram) {
         Arrays.fill(latchPortA, -1);
         Arrays.fill(latchPortB, -1);
         this.ram = ram;
-        interrupts = new InterruHandler(this, ram);
+        interrupts = new InterruptHandler(this, ram);
     }
 
+    /**
+     * write into RAM
+     * @param file port position in RAM
+     * @param value content that should be written into RAM
+     */
     private void write(int file, int value) {
         // file 7 is not implemented in the microcontroller
         if(file == 7 || CheckPortsForLatch(file, value)){
@@ -45,6 +54,12 @@ public class Execute {
         }
     }
 
+    /**
+     * check if PCLatch is active
+     * @param file port that should be checked
+     * @param value value that should be written into the port
+     * @return true if successful
+     */
     private boolean CheckPortsForLatch(int file, int value){
         // Write to PortA or PortB
         if((file == 0x05 || file == 0x06) && getRP0() == 0){
@@ -68,6 +83,10 @@ public class Execute {
         return false;
     }
 
+    /**
+     * update ports depending on PCLatch
+     * @param file port that should be updated
+     */
     public void UpdatePortsWithLatch(int file){
         if (file == 0x05) {
             for(int i = 0; i < 8; i++){
@@ -87,24 +106,44 @@ public class Execute {
         }
     }
 
+    /**
+     * write into port with destinationbit
+     * @param file port that should be written into
+     * @param value value to write into port
+     * @param destinationBit if 1: write in file-address, if 2: write in w-register
+     */
     private void write(int file, int value, int destinationBit) {
-        if (destinationBit == 1) {  // write in file-adress if d-bit is 1
+        if (destinationBit == 1) {  // write in file-address if d-bit is 1
             write(file, value);
         } else {                    // write in w-register if d-bit is 0
             Simulator.wRegister = value;
         }
     }
 
+    /**
+     * test if PCL is active
+     * @param file port
+     * @param value value that should be written
+     */
     private void testPCL(int file, int value) {
         if (file == 2) {
             Simulator.programCounter = (value + ((ram[getRP0()][10] & 0b0001_1111) << 8));
         }
     }
 
+    /**
+     * returns RP0 which is used often to switch banks
+     * @return RP0 value
+     */
     public int getRP0() {
         return (ram[0][3] & 0b0010_0000) >> 5;
     }
 
+    /**
+     * set a flag using the Flags-enumeration
+     * @param flag flag-enumeration
+     * @param value 0 or 1 to set
+     */
     public void setFlag(Flags flag, int value) {
         if (value == 0) {   // set flag to 0
             write(flag.register, ram[flag.bank][flag.register] & ~(1 << flag.bit));
@@ -113,10 +152,19 @@ public class Execute {
         }
     }
 
+    /**
+     * get value of flag
+     * @param flag flag-enumeration which should be checked
+     * @return value of flag
+     */
     public int getFlag(Flags flag) {
         return (ram[flag.bank][flag.register] & (1 << flag.bit)) >> flag.bit;
     }
 
+    /**
+     * set zero-flag depending on result (0->set)
+     * @param result result from operation
+     */
     private void testResultZero(int result) {
         if (result == 0) {
             setFlag(Flags.Zero, 1);
@@ -125,6 +173,10 @@ public class Execute {
         }
     }
 
+    /**
+     * set carry flag is result > 255
+     * @param result result from operation
+     */
     private void testResultCarry(int result) {
         if (result > 255) {
             setFlag(Flags.Carry, 1);
@@ -133,6 +185,10 @@ public class Execute {
         }
     }
 
+    /**
+     * set digit-carry-flag if result > 15
+     * @param result result from operation
+     */
     private void testResultDigitCarry(int result) {
         if (result > 15) {
             setFlag(Flags.DigitCarry, 1);

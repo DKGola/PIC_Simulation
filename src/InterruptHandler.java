@@ -1,6 +1,6 @@
 package src;
 
-public class InterruHandler {
+public class InterruptHandler {
     private int prescalerCount = 0;
     private double watchdogCount;
     private int previousInput;
@@ -10,7 +10,7 @@ public class InterruHandler {
     private final int[][] ram;
     private boolean watchdogEnable;
 
-    public InterruHandler(Execute execute, int[][] ram){
+    public InterruptHandler(Execute execute, int[][] ram){
         this.ram = ram;
         previousInput = ram[0][5] & 0b0001_0000;
         previousRB0 = ram[0][6] & 1;

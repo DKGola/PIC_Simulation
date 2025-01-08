@@ -1,5 +1,8 @@
 package src;
 
+/**
+ * enumeration for all flags so they can be easily accessed without looking up where they are stored
+ */
 public enum Flags {
     // Status register 3
     Carry(0, 3, 0), DigitCarry(1, 3, 0), Zero(2, 3, 0),
@@ -17,8 +20,15 @@ public enum Flags {
 
     public final int bit;
     public final int register;
-    public final int bank; 
-    private Flags(int bit, int register, int bank){
+    public final int bank;
+
+    /**
+     * Flags constructor
+     * @param bit bit in certatin register
+     * @param register register of bank
+     * @param bank bank 0 or 1
+     */
+    Flags(int bit, int register, int bank){
         this.bit = bit;
         this.register = register;
         this.bank = bank;

@@ -5,10 +5,22 @@ package src;
  */
 public class Decoder {
     private Execute execute;
+
+    /**
+     * Decoder constructor
+     * @param ram RAM coming from the Simulator
+     * @param execute Execute-instance
+     */
     public Decoder(int[][] ram, Execute execute) {
         this.execute =  execute;
     }
 
+    /**
+     * read the "k"th bit in a command
+     * @param commandCode 14-bit command
+     * @param k bit from the right
+     * @return bit at this position (0 or 1)
+     */
     private int readBit(int commandCode, int k) {
         if ((k < 0) || (k > 13)) {
             System.out.println("k should be 0 - 13");
@@ -20,11 +32,11 @@ public class Decoder {
     }
 
     /**
-     * read a 'substring', first and last bit are inclusive
-     * @param commandCode
-     * @param firstBit
-     * @param lastBit
-     * @return
+     * read a 'substring' (as integer), first and last bit are inclusive
+     * @param commandCode 14-bit command
+     * @param firstBit first bit from the right
+     * @param lastBit last bit from the right
+     * @return value between these bits (inclusive)
      */
     private int readBitSegment(int commandCode, int firstBit, int lastBit) {
         if ((firstBit < 0) || (firstBit > 13) || (lastBit < 0) || (lastBit > 13)) {
@@ -40,6 +52,10 @@ public class Decoder {
         }
     }
 
+    /**
+     * takes a commandcode and executes the according method in the executer
+     * @param commandCode 14-bit commandcode
+     */
     public void decode(int commandCode) {
         int commandBits = (commandCode & 0b11_1000_0000_0000);
         switch (commandBits) {
@@ -169,9 +185,6 @@ public class Decoder {
         if ((commandCode & 0b11_1111_1001_1111) == 0b00_0000_0000_0000) {
             execute.NOP();
             return;
-
-        //System.out.println("ERROR: Wrong Command Code given to the decoder");
-        //return;
         }
     }
 }
