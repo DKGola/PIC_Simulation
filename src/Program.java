@@ -5,12 +5,20 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * contains main-method and starts the program
+ */
 public class Program {
     public static boolean running;
     public static Simulator simulator;
     public static GUI gui;
     private static boolean breakpoint;
 
+    /**
+     * main method to start the simulation
+     * @param args .
+     * @throws IOException in case of an IO-Exception
+     */
     public static void main(String[] args) throws IOException {
         start();
     }

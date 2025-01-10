@@ -2,6 +2,10 @@ package src;
 import java.io.*;
 import java.util.Arrays;
 
+/**
+ * contains important aspects like rom, ram, etc.
+ * represents the fetch cycle and passes the commands to the decoder
+ */
 public class Simulator {
     private int[] rom;
     private final int[][] ram;

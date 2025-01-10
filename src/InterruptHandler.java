@@ -1,5 +1,8 @@
 package src;
 
+/**
+ * handles simulated interrupts and the watchdog
+ */
 public class InterruptHandler {
     private int prescalerCount = 0;
     private double watchdogCount;
@@ -10,6 +13,11 @@ public class InterruptHandler {
     private final int[][] ram;
     private boolean watchdogEnable;
 
+    /**
+     * InterruptHandler constructor
+     * @param execute executer instance
+     * @param ram ram instance
+     */
     public InterruptHandler(Execute execute, int[][] ram){
         this.ram = ram;
         previousInput = ram[0][5] & 0b0001_0000;
@@ -19,6 +27,9 @@ public class InterruptHandler {
         this.execute = execute;
     }
 
+    /**
+     * update timer0
+     */
     public void updateTMR0() {
         updateWatchdog();
         // Option reg T0CS
@@ -41,6 +52,9 @@ public class InterruptHandler {
         }
     }
 
+    /**
+     * increment timer 0
+     */
     private void incrementTRM0() {
         if (execute.getFlag(Flags.PrescalerAssignment) == 0) {
             if (handlePrescaler()) {
@@ -69,9 +83,13 @@ public class InterruptHandler {
         }
     }
 
+    /**
+     * prescaler handler
+     * @return .
+     */
     private boolean handlePrescaler(){
         prescalerCount++;
-        // prescaler rate determaned by Prescaler assignment bit
+        // prescaler rate determined by Prescaler assignment bit
         if (prescalerCount == (execute.getFlag(Flags.PrescalerAssignment) == 0 ? (int) Math.pow(2, (ram[1][1] & 0b0000_0111) + 1) : (int) Math.pow(2, (ram[1][1] & 0b0000_0111)))) {
             prescalerCount = 0;
             return true;
@@ -79,6 +97,9 @@ public class InterruptHandler {
         return false;
     }
 
+    /**
+     * check for interrupt, interrupt when conditions are met
+     */
     public void CheckInterrupt(){
         // check timer interrupt
         updateTMR0();
@@ -128,6 +149,9 @@ public class InterruptHandler {
         previousRB7ToRB4 = RB7ToRB4;
     }
 
+    /**
+     * update watchdog timer
+     */
     private void updateWatchdog() {
         if(!watchdogEnable){
             return;
@@ -154,23 +178,41 @@ public class InterruptHandler {
         }
     }
 
+    /**
+     * switch watchdog on / off
+     */
     public void ToggleWatchdog(){
         watchdogEnable = !watchdogEnable;
     }
 
+    /**
+     * reset watchdog to 0
+     */
     public void clearWatchdog(){
         watchdogCount = 0;
     }
 
+    /**
+     * set rb0interrupt flag
+     */
     private void RB0Interrupt(){
         execute.isAsleep = false;
         execute.setFlag(Flags.RB0Interrupt, 1);
     }
 
+    /**
+     * set prescaler on count
+     * @param num count for prescaler
+     */
     public void SetPrescaler(int num){
         prescalerCount = num;
     }
 
+    /**
+     * reset prescaler if user writes to timer or flag bit gets changed
+     * @param file f
+     * @param value value whose flag bit should be checked
+     */
     public void CheckPrescalerReset(int file, int value){
         if (file == 1) {
             if(execute.getRP0() == 0){

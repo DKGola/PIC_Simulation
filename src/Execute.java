@@ -198,6 +198,12 @@ public class Execute {
     }
 
     // Byte instructions
+
+    /**
+     * Add W and f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void ADDWF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -223,6 +229,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * AND W with f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void ANDWF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -241,6 +252,10 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Clear f
+     * @param file f
+     */
     public void CLRF(int file) {
         // test for indirect addressing
         if (file == 0) {
@@ -251,11 +266,19 @@ public class Execute {
         setFlag(Flags.Zero, 1);
     }
 
+    /**
+     * Clear W
+     */
     public void CLRW() {
         Simulator.wRegister = 0;
         setFlag(Flags.Zero, 1);
     }
 
+    /**
+     * Complement f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void COMF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -268,6 +291,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Decrement f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void DECF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -280,6 +308,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Decrement f, Skip if 0
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void DECFSZ(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -299,6 +332,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Increment f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void INCF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -311,6 +349,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Increment f, Skip if 0
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void INCFSZ(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -328,6 +371,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Inclusive OR W with f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void IORWF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -339,6 +387,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Move f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void MOVF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -353,6 +406,10 @@ public class Execute {
         }
     }
 
+    /**
+     * Move W to f
+     * @param file f
+     */
     public void MOVWF(int file) {
         // test for indirect addressing
         if (file == 0) {
@@ -362,11 +419,17 @@ public class Execute {
         write(file, Simulator.wRegister);
     }
 
+    /**
+     * No Operation
+     */
     public void NOP() {
-
     }
 
-    // Rotate Left through Carry
+    /**
+     * Rotate Left f through Carry
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void RLF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -384,6 +447,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Rotate Right f through Carry
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void RRF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -403,6 +471,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Subtract W from f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void SUBWF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -433,6 +506,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Swap nibbles in f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void SWAPF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -446,6 +524,11 @@ public class Execute {
         write(file, result, destinationBit);
     }
 
+    /**
+     * Exclusive OR W with f
+     * @param file f
+     * @param destinationBit 0->W-register; 1->register f
+     */
     public void XORWF(int file, int destinationBit) {
         // test for indirect addressing
         if (file == 0) {
@@ -459,6 +542,12 @@ public class Execute {
     }
 
     // Bit Instructions
+
+    /**
+     * Bit Clear f
+     * @param file f
+     * @param bit b
+     */
     public void BCF(int file, int bit) {
         // test for indirect addressing
         if (file == 0) {
@@ -469,6 +558,11 @@ public class Execute {
         write(file, result);
     }
 
+    /**
+     * Bit Set f
+     * @param file f
+     * @param bit b
+     */
     public void BSF(int file, int bit) {
         // test for indirect addressing
         if (file == 0) {
@@ -479,6 +573,11 @@ public class Execute {
         write(file, result);
     }
 
+    /**
+     * Bit Test f, Skip if Clear
+     * @param file f
+     * @param bit b
+     */
     public void BTFSC(int file, int bit) {
         // test for indirect addressing
         if (file == 0) {
@@ -493,6 +592,11 @@ public class Execute {
         }
     }
 
+    /**
+     * Bit Test f, Skip if Set
+     * @param file f
+     * @param bit b
+     */
     public void BTFSS(int file, int bit) {
         // test for indirect addressing
         if (file == 0) {
@@ -508,6 +612,11 @@ public class Execute {
     }
 
     // Literal and Control Instructions
+
+    /**
+     * Add literal and W
+     * @param literal l
+     */
     public void ADDLW(int literal) {
         int result = literal + Simulator.wRegister;
         int digitResult = (Simulator.wRegister & 0xF) + (literal & 0xF);
@@ -523,23 +632,38 @@ public class Execute {
         Simulator.wRegister = result;
     }
 
+    /**
+     * AND literal with W
+     * @param literal l
+     */
     public void ANDLW(int literal) {
         int result = Simulator.wRegister & literal;
         testResultZero(result);
         Simulator.wRegister = result;
     }
 
+    /**
+     * Call subroutine
+     * @param literal l
+     */
     public void CALL(int literal) {
         returnStack.push(Simulator.programCounter); // push current pc on stack
         GOTO(literal);
     }
 
+    /**
+     * Clear Watchdog Timer
+     */
     public void CLRWDT() {
         interrupts.clearWatchdog();
         setFlag(Flags.TimeOut, 1);
         setFlag(Flags.PowerDown, 1);
     }
 
+    /**
+     * Go to address
+     * @param literal l
+     */
     public void GOTO(int literal) {
         // set program counter to:
         // first 11 bits from literal k
@@ -549,16 +673,27 @@ public class Execute {
         Program.simulator.incrementRuntime();   // 2-cycle-command
     }
 
+    /**
+     * Inclusive OR literal with W
+     * @param literal l
+     */
     public void IORLW(int literal) {
         int result = (Simulator.wRegister | literal);
         testResultZero(result);
         Simulator.wRegister = result;
     }
 
+    /**
+     * Move literal to W
+     * @param literal l
+     */
     public void MOVLW(int literal) {
         Simulator.wRegister = literal;
     }
 
+    /**
+     * Return from interrupt
+     */
     public void RETFIE() {
         interrupts.updateTMR0();
         setFlag(Flags.GlobalInterruptEnable, 1);
@@ -566,6 +701,10 @@ public class Execute {
         Program.simulator.incrementRuntime();
     }
 
+    /**
+     * Return with literal in W
+     * @param literal l
+     */
     public void RETLW(int literal) {
         Simulator.programCounter = returnStack.pop();
         Simulator.wRegister = literal;
@@ -573,18 +712,28 @@ public class Execute {
         Program.simulator.incrementRuntime();
     }
 
+    /**
+     * Return from Subroutine
+     */
     public void RETURN() {
         Simulator.programCounter = returnStack.pop();
         interrupts.updateTMR0();
         Program.simulator.incrementRuntime();
     }
 
+    /**
+     * Go into standby mode
+     */
     public void SLEEP() {
         isAsleep = true;
         setFlag(Flags.PowerDown, 0);
         setFlag(Flags.TimeOut, 1);
     }
 
+    /**
+     * Subtract W from literal
+     * @param literal l
+     */
     public void SUBLW(int literal) {
         int result = literal - Simulator.wRegister;
         int digitResult = (literal & 0xF) - (Simulator.wRegister & 0xF);
@@ -609,6 +758,10 @@ public class Execute {
         Simulator.wRegister = result;
     }
 
+    /**
+     * Exclusive OR literal with W
+     * @param literal l
+     */
     public void XORLW(int literal) {
         Simulator.wRegister = Simulator.wRegister ^ literal;
         testResultZero(Simulator.wRegister);

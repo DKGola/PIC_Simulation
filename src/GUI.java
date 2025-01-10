@@ -12,6 +12,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * represents user graphical user interface
+ */
 public class GUI extends JFrame {
 
     private JSlider frequencySlider;
@@ -49,7 +52,9 @@ public class GUI extends JFrame {
     private int line;
     public int[][] ioData;
 
-
+    /**
+     * GUI constructor, contains listeners
+     */
     public GUI() {
         // Get the screen dimensions
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -233,6 +238,9 @@ public class GUI extends JFrame {
             }
         });
 
+        /**
+         * toggle watchdog
+         */
         watchdogEnableRadioButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -459,8 +467,8 @@ public class GUI extends JFrame {
      */
     public File getSelectedFile() {
         if (selectedFile != null) {
+            return selectedFile;
         }
-        return selectedFile;
     }
 
     /**
