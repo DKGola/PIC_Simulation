@@ -466,9 +466,7 @@ public class GUI extends JFrame {
      * @return selected file
      */
     public File getSelectedFile() {
-        if (selectedFile != null) {
             return selectedFile;
-        }
     }
 
     /**
