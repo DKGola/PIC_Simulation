@@ -7,7 +7,8 @@ It simulates all the functionalities of a real microcontroller, including the Fe
 
 In the following, the general functionality of the simulator will be displayed in a little more detail.
 
-![image](image.png)
+<img width="1728" alt="Screenshot 2025-03-01 at 13 27 24" src="https://github.com/user-attachments/assets/089a3d02-6463-4867-a11d-3069a4522c79" />
+
 
 The interface consists of the following control elements:
 
@@ -30,3 +31,9 @@ In the top left of the GUI, click the "File"-button and select one of the given 
 
 * Damian Gola
 * Maik Schindler
+
+## Images
+
+<img width="1728" alt="Screenshot 2025-03-01 at 13 27 42" src="https://github.com/user-attachments/assets/029565b6-52f6-4466-95ae-d2c4e95b1a60" />
+<img width="1728" alt="Screenshot 2025-03-01 at 13 31 06" src="https://github.com/user-attachments/assets/8eebc405-79e1-47d3-9e27-6a6173a5f4fe" />
+<img width="1728" alt="Screenshot 2025-03-01 at 13 30 06" src="https://github.com/user-attachments/assets/1f248f33-8f03-4a78-bcda-3667148147e8" />
